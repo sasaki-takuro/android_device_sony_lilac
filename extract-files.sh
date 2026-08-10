@@ -101,4 +101,17 @@ DEVICE_ROOT="${ANDROID_ROOT}"/vendor/"${VENDOR}"/"${DEVICE}"/proprietary
 # Blobs fixup end
 #
 
+
+sed -i 's/\x42\xf2\x80\x42/\x40\xf6\x00\x02/' "${DEVICE_ROOT}"/vendor/lib/camera/libexcal_focus_stats_conv_plugin.so
+
+
+sed -i 's/\x00\x08\x01\x00/\x00\x40\x01\x00/' "${DEVICE_ROOT}"/vendor/lib/libexcal_core.so
+
+
+sed -i 's/\x90\x20/\xa8\x20/' "${DEVICE_ROOT}"/vendor/lib/libsomc_chokoballpal.so
+
+
+sed -i 's/\x4f\xf0\x00\x5e/\x4f\xf0\x00\x0e/' "${DEVICE_ROOT}"/vendor/lib/libcammw_util.so
+sed -i 's/\x03\xf0\xd4\xfa/\x00\xbf\x00\xbf/' "${DEVICE_ROOT}"/vendor/lib/libcammw_util.so
+
 "${MY_DIR}"/setup-makefiles.sh

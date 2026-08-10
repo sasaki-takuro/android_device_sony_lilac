@@ -56,3 +56,11 @@ PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += \
 TARGET_USE_CUSTOM_POWERHINT := true
 
 include $(DEVICE_PATH)/device/*.mk
+
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS := false
+OVERRIDE_ENABLE_UFFD_GC := false
+
+PRODUCT_COPY_FILES += \
+    device/sony/lilac/rootdir/etc/init.lilac-secd-override.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.lilac-secd-override.rc \
+    device/sony/lilac/rootdir/etc/init.lilac-cpuset.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.lilac-cpuset.rc \
+    device/sony/lilac/rootdir/bin/init.lilac-cpuset.sh:$(TARGET_COPY_OUT_VENDOR)/bin/init.lilac-cpuset.sh

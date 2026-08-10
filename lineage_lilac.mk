@@ -35,3 +35,4 @@ BUILD_FINGERPRINT := Sony/G8441/G8441:9/47.2.A.11.228/3311891731:user/release-ke
 ifeq ($(WITH_KSU),true)
 	LINEAGE_VERSION_APPEND := -KSU
 endif
+
