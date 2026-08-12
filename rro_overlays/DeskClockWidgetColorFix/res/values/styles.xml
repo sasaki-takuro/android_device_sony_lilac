@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextAppearance.DigitalAppWidget.TextClockPrimary.TransparentLightBg" parent="">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFeatureSettings">pnum</item>
+        <item name="android:letterSpacing">-0.04</item>
+        <item name="android:textColor">#FF000000</item>
+    </style>
+
+    <style name="TextAppearance.DigitalAppWidget.TextClockPrimary.TransparentDarkBg" parent="">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFeatureSettings">pnum</item>
+        <item name="android:letterSpacing">-0.04</item>
+        <item name="android:textColor">#FFFFFFFF</item>
+    </style>
+</resources>

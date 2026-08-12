@@ -64,3 +64,9 @@ PRODUCT_COPY_FILES += \
     device/sony/lilac/rootdir/etc/init.lilac-secd-override.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.lilac-secd-override.rc \
     device/sony/lilac/rootdir/etc/init.lilac-cpuset.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.lilac-cpuset.rc \
     device/sony/lilac/rootdir/bin/init.lilac-cpuset.sh:$(TARGET_COPY_OUT_VENDOR)/bin/init.lilac-cpuset.sh
+
+PRODUCT_PACKAGES += \
+    DeskClockWidgetColorFix
+
+PRODUCT_COPY_FILES += \
+    device/sony/lilac/fonts/fonts_customization.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/fonts_customization.xml
