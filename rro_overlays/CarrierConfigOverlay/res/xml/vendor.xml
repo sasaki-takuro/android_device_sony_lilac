@@ -760,4 +760,30 @@ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.-->
         <int name="carrier_default_wfc_ims_roaming_mode_int" value="2" />
     </carrier_config>
 
+    <!-- NTT DOCOMO JP -->
+    <carrier_config mcc="440" mnc="10">
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="carrier_volte_provisioned_bool" value="true" />
+        <boolean name="carrier_volte_provisioning_required_bool" value="false" />
+    </carrier_config>
+
+    <!-- mineo (DOCOMO MVNO) JP -->
+    <carrier_config cid="2121" name="mineo">
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="carrier_volte_provisioned_bool" value="true" />
+        <boolean name="carrier_volte_provisioning_required_bool" value="false" />
+    </carrier_config>
+
+    <!-- KDDI / au / IIJmio Type A JP -->
+    <carrier_config mcc="440" mnc="50">
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="carrier_volte_provisioned_bool" value="true" />
+        <boolean name="carrier_volte_provisioning_required_bool" value="false" />
+    </carrier_config>
+    <carrier_config mcc="440" mnc="51">
+        <boolean name="carrier_volte_available_bool" value="true" />
+        <boolean name="carrier_volte_provisioned_bool" value="true" />
+        <boolean name="carrier_volte_provisioning_required_bool" value="false" />
+    </carrier_config>
+
 </carrier_config_list>
