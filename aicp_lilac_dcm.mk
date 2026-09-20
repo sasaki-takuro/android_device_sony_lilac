@@ -25,3 +25,7 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_NFC_PATH)/product/etc/felica/common.cfg:$(TARGET_COPY_OUT_PRODUCT)/etc/felica/common.cfg \
     $(LOCAL_NFC_PATH)/product/etc/felica/mfm.cfg:$(TARGET_COPY_OUT_PRODUCT)/etc/felica/mfm.cfg \
     $(LOCAL_NFC_PATH)/product/etc/felica/mfs.cfg:$(TARGET_COPY_OUT_PRODUCT)/etc/felica/mfs.cfg
+
+# APN configuration
+PRODUCT_COPY_FILES += \
+    device/sony/lilac/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
