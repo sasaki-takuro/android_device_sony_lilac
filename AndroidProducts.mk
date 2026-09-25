@@ -5,5 +5,6 @@ PRODUCT_MAKEFILES := \
     $(LOCAL_DIR)/aicp_lilac_dcm.mk
 
 COMMON_LUNCH_CHOICES := \
+    aicp_lilac_dcm-bp1a-userdebug \
     aicp_lilac_dcm-ap4a-userdebug \
     aicp_lilac_dcm-ap4a-eng

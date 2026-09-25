@@ -1,7 +1,12 @@
 ### PLATFORM
 $(call inherit-product, device/sony/yoshino-common/platform.mk)
 ### PROPRIETARY VENDOR FILES
+ifeq ($(TARGET_PRODUCT),aicp_lilac_dcm)
+include vendor/sony/lilac/lilac-vendor.mk
+PRODUCT_COPY_FILES := $(filter-out vendor/sony/lilac/proprietary/vendor/etc/libnfc-nci.conf:%,$(PRODUCT_COPY_FILES))
+else
 $(call inherit-product, vendor/sony/lilac/lilac-vendor.mk)
+endif
 
 ifeq ($(WITH_FDROID),true)
 $(call inherit-product, vendor/fdroid/fdroid-vendor.mk)

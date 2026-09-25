@@ -30,6 +30,3 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     device/sony/lilac/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
 
-# IMS media JNI library for 64-bit IMS service
-PRODUCT_COPY_FILES += \
-    vendor/sony/yoshino-common/proprietary/system_ext/lib64/libimsmedia_jni.so:$(TARGET_COPY_OUT_SYSTEM)/lib64/libimsmedia_jni.so
