@@ -22,14 +22,10 @@ DEVICE_PATH := device/sony/lilac
 PRODUCT_PLATFORM := yoshino
 
 ### BOOTLOADER
-ifeq ($(TARGET_PRODUCT),lineage_lilac_dcm)
-    TARGET_BOOTLOADER_BOARD_NAME := SO-02K
-else
-    TARGET_BOOTLOADER_BOARD_NAME := G8441
-endif
+TARGET_BOOTLOADER_BOARD_NAME := G8441
 
 ### KERNEL
-ifeq ($(TARGET_PRODUCT),lineage_lilac_dcm)
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
     TARGET_KERNEL_CONFIG := lineage-msm8998-yoshino-lilac_dcm_defconfig
 else
     TARGET_KERNEL_CONFIG := lineage-msm8998-yoshino-lilac_defconfig
