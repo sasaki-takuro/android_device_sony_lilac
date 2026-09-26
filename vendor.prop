@@ -6,23 +6,3 @@ vendor.display.hwc_disable_hdr=1
 
 # Radio
 persist.vendor.radio.block_allow_data=1
-
-# NTT DOCOMO SO-02K OEM & IMS Properties
-ro.somc.customerid=608
-ro.cst.prm=1311-8845:R14B
-ro.semc.version.cust=1311-8845
-ro.semc.version.cust_revision=R14B
-ro.semc.spn.currentname=NTT DoCoMo
-ro.semc.spn.newname=NTT DOCOMO
-ro.com.nttdocomo.videocall=true
-
-# IMS / VoLTE Flags
-persist.dbg.ims_volte_enable=1
-persist.dbg.volte_avail_ovr=1
-persist.dbg.vt_avail_ovr=1
-persist.vendor.radio.volte_switch=1
-persist.vendor.radio.imsregrequired=1
-persist.radio.ROTATION_ENABLE=1
-persist.radio.VT_ENABLE=1
-persist.radio.VT_HYBRID_ENABLE=1
-persist.ims.disableUserAgent=1
