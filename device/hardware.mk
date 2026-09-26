@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # NFC
-ifeq ($(TARGET_PRODUCT),lineage_lilac_dcm)
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
 # DCM uses prebuilt Sony FeliCa NFC HAL
 else
 PRODUCT_PACKAGES += \
