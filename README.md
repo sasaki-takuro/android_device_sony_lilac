@@ -98,7 +98,7 @@ git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_o
 ### 5. ビルド実行
 ```bash
 source build/envsetup.sh
-breakfast lilac_dcm
+lunch aicp_lilac_dcm-bp1a-userdebug
 mka bacon
 ```
 
