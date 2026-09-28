@@ -1,0 +1,54 @@
+From bf0f9f85821edc1ff96996aff4930ede02e15880 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Mon, 28 Sep 2026 14:14:59 +0900
+Subject: [PATCH] releasetools: Safely fallback to avbtool when avb_avbtool is
+ missing
+
+Change-Id: I9109d9ba9620b9b428933f85a2a3b43abf57b09b
+---
+ tools/releasetools/sign_target_files_apks.py | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/tools/releasetools/sign_target_files_apks.py b/tools/releasetools/sign_target_files_apks.py
+index 546198921a..2ffa6e2338 100755
+--- a/tools/releasetools/sign_target_files_apks.py
++++ b/tools/releasetools/sign_target_files_apks.py
+@@ -760,7 +760,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+             maxsize, name, payload_key))
+ 
+         signed_apex = apex_utils.SignApex(
+-            misc_info['avb_avbtool'],
++            misc_info.get('avb_avbtool', 'avbtool'),
+             data,
+             payload_key,
+             container_key,
+@@ -856,7 +856,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+       signing_key = OPTIONS.avb_keys.get("system_other")
+       if signing_key:
+         public_key = common.ExtractAvbPublicKey(
+-            misc_info['avb_avbtool'], signing_key)
++            misc_info.get('avb_avbtool', 'avbtool'), signing_key)
+         print("    Rewriting AVB public key of system_other in /product")
+         common.ZipWrite(output_tf_zip, public_key, filename)
+ 
+@@ -874,7 +874,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+         # Get the current and new embedded keys.
+         payload_key, container_key, sign_tool = apex_keys[virt_apex]
+         new_pubkey_path = common.ExtractAvbPublicKey(
+-            misc_info['avb_avbtool'], payload_key)
++            misc_info.get('avb_avbtool', 'avbtool'), payload_key)
+         with open(new_pubkey_path, 'rb') as f:
+           new_pubkey = f.read()
+         pubkey_info = copy.copy(
+@@ -1002,7 +1002,7 @@ def ReplaceKeyInAvbHashtreeFooter(image, new_key, new_algorithm, misc_info):
+     return hashtree_descriptors[0]["Hashtree descriptor"]
+ 
+   # Get avb info
+-  avbtool = misc_info['avb_avbtool']
++  avbtool = misc_info.get('avb_avbtool', 'avbtool')
+   info = GetAvbInfo(avbtool, image.name)
+   hashtree_descriptor = GetAvbHashtreeDescriptor(info)
+ 
+-- 
+2.55.0
+

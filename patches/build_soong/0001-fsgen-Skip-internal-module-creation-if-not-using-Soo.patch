@@ -1,0 +1,28 @@
+From 625d7371947953ccfb6e813657ece860ddbcf6b0 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Mon, 28 Sep 2026 14:16:34 +0900
+Subject: [PATCH] fsgen: Skip internal module creation if not using Soong
+ system image
+
+Change-Id: I60963cae353ae3cbab3cdb52c67821242a00f8d4
+---
+ fsgen/filesystem_creator.go | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/fsgen/filesystem_creator.go b/fsgen/filesystem_creator.go
+index 11dfac0db..9c19f8e07 100644
+--- a/fsgen/filesystem_creator.go
++++ b/fsgen/filesystem_creator.go
+@@ -118,6 +118,9 @@ func generatedPartitions(ctx android.LoadHookContext) []string {
+ }
+ 
+ func (f *filesystemCreator) createInternalModules(ctx android.LoadHookContext) {
++	if !ctx.Config().UseSoongSystemImage() {
++		return
++	}
+ 	soongGeneratedPartitions := generatedPartitions(ctx)
+ 	finalSoongGeneratedPartitions := make([]string, 0, len(soongGeneratedPartitions))
+ 	for _, partitionType := range soongGeneratedPartitions {
+-- 
+2.55.0
+
