@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <!-- Remote definition for external GitHub repositories -->
+  <remote name="github-sony" fetch="https://github.com" />
+
+  <!-- Kernel -->
+  <project name="sasaki-takuro/android_kernel_sony_msm8998" path="kernel/sony/msm8998" remote="github-sony" revision="lineage-22.2-lilac-dcm" />
+
+  <!-- Device Trees -->
+  <project name="sasaki-takuro/android_device_sony_yoshino-common" path="device/sony/yoshino-common" remote="github-sony" revision="aicp-15-dcm" />
+  <project name="sasaki-takuro/android_device_sony_lilac" path="device/sony/lilac" remote="github-sony" revision="aicp-15-dcm" />
+
+  <!-- Vendor Blobs -->
+  <project name="sasaki-takuro/android_vendor_sony_yoshino-common" path="vendor/sony/yoshino-common" remote="github-sony" revision="aicp-15-dcm" />
+  <project name="justinlin099/android_vendor_sony_lilac" path="vendor/sony/lilac" remote="github-sony" revision="lineage-22.2" />
+</manifest>
