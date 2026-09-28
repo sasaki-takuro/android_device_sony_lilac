@@ -1,0 +1,48 @@
+From 70f0ad86b78de1f7231191115f1c3d61b0493a2e Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sun, 27 Sep 2026 16:49:21 +0900
+Subject: [PATCH 2/2] telephony: Correct RadioState mapping for both HAL 1.0
+ and 1.4+ QCRIL
+
+Change-Id: I360b993bcde469dc89b0c2e318e7ce2d738ff407
+---
+ .../internal/telephony/RadioIndication.java   | 23 ++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/src/java/com/android/internal/telephony/RadioIndication.java b/src/java/com/android/internal/telephony/RadioIndication.java
+index aadfe62499..4d348457f7 100644
+--- a/src/java/com/android/internal/telephony/RadioIndication.java
++++ b/src/java/com/android/internal/telephony/RadioIndication.java
+@@ -138,7 +138,28 @@ public class RadioIndication extends IRadioIndication.Stub {
+     public void radioStateChanged(int indicationType, int radioState) {
+         mRil.processIndication(HAL_SERVICE_RADIO, indicationType);
+ 
+-        int state = RILUtils.convertHalRadioState(radioState);
++        int state;
++        switch (radioState) {
++            case 0:
++                state = android.telephony.TelephonyManager.RADIO_POWER_OFF;
++                break;
++            case 1:
++                if (mRil.getHalVersion(HAL_SERVICE_RADIO).greaterOrEqual(RIL.RADIO_HAL_VERSION_1_4)) {
++                    state = android.telephony.TelephonyManager.RADIO_POWER_ON;
++                } else {
++                    state = android.telephony.TelephonyManager.RADIO_POWER_UNAVAILABLE;
++                }
++                break;
++            case 2:
++                state = android.telephony.TelephonyManager.RADIO_POWER_UNAVAILABLE;
++                break;
++            case 10:
++                state = android.telephony.TelephonyManager.RADIO_POWER_ON;
++                break;
++            default:
++                state = android.telephony.TelephonyManager.RADIO_POWER_UNAVAILABLE;
++                break;
++        }
+         if (mRil.isLogOrTrace()) {
+             mRil.unsljLogMore(
+                     RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED, "radioStateChanged: " + state);
+-- 
+2.55.0
+
