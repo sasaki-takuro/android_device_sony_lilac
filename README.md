@@ -4,7 +4,7 @@
 NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM：AICP 15 ベース）** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に動作させる** ためのデバイスツリーおよびビルド手順・修正パッチ一式です。
 
 * **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
-* **ベースOS**: Android 15（AICP 15 ベース）
+* **ベースOS**: AICP 15（LineageOS 22 / Android 15 ベース）
 * **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持
 
 ---
@@ -115,3 +115,20 @@ mka bacon
 * **`frameworks_opt_telephony`**:
   * シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   * レガシー HAL との互換性維持のための `RadioState` マッピング修正。
+
+---
+
+## クレジット・謝辞 (Credits & Acknowledgments)
+
+本環境およびビルド設定は、オープンソース開発者およびコミュニティの多大な成果に基づいています。素晴らしいベースを維持・公開してくださっている皆様に深く敬意と感謝を表します。
+
+Special thanks to all the upstream developers and communities whose dedicated work made this project possible:
+
+* **[LineageOS Project](https://github.com/LineageOS)**
+  * Android オープンソースカスタムROMの強固な基盤システムの提供 / Providing the solid foundation of the open-source Android platform
+* **[AICP (Android Ice Cold Project)](https://github.com/AICP)**
+  * カスタマイズ性に優れた ROM 本体の提供 / Providing a highly customizable and clean ROM
+* **[justinlin099 (Justin Lin)](https://github.com/justinlin099) 氏**
+  * Xperia XZ1 Compact (Lilac / SO-02K) 向けデバイスツリーの構築・メンテナンスおよび成果の公開 / Maintaining and sharing device trees for Xperia XZ1 Compact (Lilac / SO-02K)
+* **Sony Open Devices プロジェクトおよび Xperia 開発コミュニティの皆様**
+  * Sony Open Devices Project and the Xperia development community
