@@ -1,7 +1,11 @@
-# Sony Xperia XZ1 Compact (SO-02K) 向け AICP 15 デバイス設定
+# Sony Xperia XZ1 Compact (SO-02K) を Android 15 化するビルド設定・手順書（カスタムROM AICPベース / 国内VoLTE対応）
 
-## 概要
-NTTドコモ版 Sony Xperia XZ1 Compact（SO-02K）上で **AICP 15 (Android 15)** を動作させ、日本国内の VoLTE（ドコモ系・au系回線）を通話・通信ともに動作させるためのビルド・デバイス構成リポジトリです。
+## これは何？
+NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM：AICP 15 ベース）** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に動作させる** ためのデバイスツリーおよびビルド手順・修正パッチ一式です。
+
+* **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
+* **ベースOS**: Android 15（AICP 15 ベース）
+* **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持
 
 ---
 
