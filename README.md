@@ -68,14 +68,14 @@ NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM
 ```bash
 mkdir -p ~/aicp15
 cd ~/aicp15
-repo init -u [https://github.com/AICP/platform_manifest.git](https://github.com/AICP/platform_manifest.git) -b aicp-15 --git-lfs
+repo init -u https://github.com/AICP/platform_manifest.git -b aicp-15 --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
 本リポジトリに含まれる再現用マニフェストを取得して配置します。
 ```bash
 mkdir -p .repo/local_manifests
-curl -sL [https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/aicp-15-dcm/lilac_manifest.xml](https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/aicp-15-dcm/lilac_manifest.xml) -o .repo/local_manifests/lilac.xml
+curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/aicp-15-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
 ```
 
 ### 3. ソースコードの同期
