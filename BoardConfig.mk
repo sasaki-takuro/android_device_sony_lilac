@@ -22,7 +22,13 @@ DEVICE_PATH := device/sony/lilac
 PRODUCT_PLATFORM := yoshino
 
 ### BOOTLOADER
-TARGET_BOOTLOADER_BOARD_NAME := G8441
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
+    TARGET_BOOTLOADER_BOARD_NAME := SO-02K
+    TARGET_OTA_ASSERT_DEVICE := lilac,SO-02K,so-02k,lilac_dcm,lilac_docomo
+else
+    TARGET_BOOTLOADER_BOARD_NAME := G8441
+    TARGET_OTA_ASSERT_DEVICE := lilac,G8441
+endif
 
 ### KERNEL
 ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
