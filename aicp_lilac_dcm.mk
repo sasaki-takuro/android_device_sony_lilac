@@ -30,3 +30,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     device/sony/lilac/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
 
+
+# SEMC / MiscTA properties normalized for SO-02K
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.semc.version.sw_variant=DOCOMO-LTECA \
+    ro.semc.product.model=SO-02K \
+    ro.semc.ms_type_id=PM-1060-BV
