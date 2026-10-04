@@ -5,7 +5,7 @@ NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM
 
 * **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
 * **ベースOS**: AICP 15（LineageOS 22 / Android 15 ベース）
-* **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持
+* **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持、SO-02K 固有プロパティ群（`ro.semc.*` 等）の完全復元
 
 ---
 
@@ -52,13 +52,20 @@ NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM
   * Android 起動時のプロパティ値:
     * `ro.boot.flash.locked`: `0`
     * `ro.boot.verifiedbootstate`: `orange`
-* **プロダクト認識（自認）**:
-  * 検証環境の実機では、`xperable` によるアンロック処理および共通ツリー環境の導入後、ブートローダーの自認が **`G8441`** を返す状態となっています。
-    ```bash
-    $ fastboot getvar product
-    product: G8441
-    ```
-  * リカバリ（TWRP等）でROMのZIPを焼く際、端末側の機種判定が `G8441` や `lilac` として扱われるため、ROM側もこれらを対象とした機種チェック判定（assert / アサート）を通す形になっている必要があります（誤判定によるインストールエラー回避のため）。
+* **プロダクト判定とアサート正規化**:
+  * グローバル共通ツリーに引きずられた `G8441` の誤認を排除するため、`TARGET_BOOTLOADER_BOARD_NAME := lilac` に正規化し、インストールアサート対象を `SO-02K`, `lilac`, `lilac_dcm` に統一しています。
+
+---
+
+## 主な改修・適用内容
+
+1. **ドコモ（SO-02K）固有プロパティの分離と適用**:
+   * グローバル用プロパティ（`system.prop`）を汚さず、ドコモ専用定義として `system_dcm.prop` を分離。
+   * `ro.semc.version.*`、`ro.semc.product.*`、`ro.somc.*` などの実機パラメータを正確に投入。
+2. **SELinux ポリシーの修正（yoshino-common 側）**:
+   * `vendor_init.te` を改修し、`/vendor/build.prop` からのプロパティ読み込み時に `semc_version_prop`、`semc_product_prop`、`somc_oem_prop` への `set_prop` 権限を付与して拒否（denial）を解消。
+3. **アサートおよびターゲット名正規化**:
+   * 機種判定から `G8441` を排除し、`SO-02K` 向けターゲットとして統一。
 
 ---
 
