@@ -1,0 +1,27 @@
+### USB
+ro.vendor.usb.pid_suffix=1F4
+
+### DISPLAY
+# Skip HDR Tone map on Lilac
+sys.hwc_disable_hdr=1
+
+### RADIO
+ro.telephony.default_network=9
+
+##### Add values MiscTA (SO-02K Docomo) #####
+# /system/etc/prop.default
+ro.semc.version.sw=1307-7513
+ro.semc.version.sw_revision=47.1.F.1.105
+ro.semc.version.sw_variant=DOCOMO-LTECA
+ro.semc.version.sw_type=user
+
+# /system/build.prop
+ro.semc.product.model=SO-02K
+ro.semc.ms_type_id=PM-1060-BV
+ro.semc.version.fs=GENERIC
+ro.semc.version.fs_revision=47.1.F.1.105
+ro.semc.product.name=Xperia XZ1 Compact
+ro.semc.product.device=G84
+
+# Tell SurfaceFlinger not to rely on ConfigStore
+android.hardware.configstore.1.0-service=0

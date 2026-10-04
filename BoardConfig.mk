@@ -50,7 +50,11 @@ TARGET_SCREEN_DENSITY := 320
 
 ### PROPS
 # Add device-specific ones
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
+TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system_dcm.prop
+else
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
+endif
 TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
 
 # KernelSU Next Implementation
