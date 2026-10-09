@@ -1,0 +1,47 @@
+From f9b515085da364de6676ff353133be1453548d83 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sat, 10 Oct 2026 04:15:53 +0900
+Subject: [PATCH 2/2] base: Disable window, transition, and animator animations
+ by default
+
+Change-Id: Ia886266dd8ca7a2a78917244afbc81b43a4f3098
+---
+ packages/SettingsProvider/res/values/defaults.xml           | 4 ++--
+ .../java/com/android/server/wm/WindowManagerService.java    | 6 +++---
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/packages/SettingsProvider/res/values/defaults.xml b/packages/SettingsProvider/res/values/defaults.xml
+index 5ddf005d9468..6d8e2573b3d7 100644
+--- a/packages/SettingsProvider/res/values/defaults.xml
++++ b/packages/SettingsProvider/res/values/defaults.xml
+@@ -34,8 +34,8 @@
+     <!-- Default screen brightness, from 0 to 255.  102 is 40%. -->
+     <integer name="def_screen_brightness">102</integer>
+     <bool name="def_screen_brightness_automatic_mode">false</bool>
+-    <fraction name="def_window_animation_scale">100%</fraction>
+-    <fraction name="def_window_transition_scale">100%</fraction>
++    <fraction name="def_window_animation_scale">0%</fraction>
++    <fraction name="def_window_transition_scale">0%</fraction>
+     <bool name="def_haptic_feedback">true</bool>
+ 
+     <bool name="def_bluetooth_on">true</bool>
+diff --git a/services/core/java/com/android/server/wm/WindowManagerService.java b/services/core/java/com/android/server/wm/WindowManagerService.java
+index 87493dd2cfc8..49add9387468 100644
+--- a/services/core/java/com/android/server/wm/WindowManagerService.java
++++ b/services/core/java/com/android/server/wm/WindowManagerService.java
+@@ -1046,9 +1046,9 @@ public class WindowManagerService extends IWindowManager.Stub
+     PowerManager mPowerManager;
+     PowerManagerInternal mPowerManagerInternal;
+ 
+-    private float mWindowAnimationScaleSetting = 1.0f;
+-    private float mTransitionAnimationScaleSetting = 1.0f;
+-    private float mAnimatorDurationScaleSetting = 1.0f;
++    private float mWindowAnimationScaleSetting = 0.0f;
++    private float mTransitionAnimationScaleSetting = 0.0f;
++    private float mAnimatorDurationScaleSetting = 0.0f;
+     private boolean mAnimationsDisabled = false;
+     boolean mPointerLocationEnabled = false;
+ 
+-- 
+2.56.0
+
