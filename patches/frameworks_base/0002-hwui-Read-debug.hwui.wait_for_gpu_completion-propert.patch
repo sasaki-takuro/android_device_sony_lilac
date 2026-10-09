@@ -1,0 +1,29 @@
+From 7a0e1ff3486a9413789ae1b0fa4972498d565766 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Fri, 9 Oct 2026 20:14:30 +0900
+Subject: [PATCH] hwui: Read debug.hwui.wait_for_gpu_completion property
+
+Allow toggling waitForGpuCompletion dynamically via system property
+to synchronize GPU completion fences, preventing Protocol error crashes
+on legacy Adreno drivers (e.g. Adreno 540 on lilac).
+
+Change-Id: I63475a0494262280651332c96df29c96a6d7625f
+---
+ libs/hwui/Properties.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libs/hwui/Properties.cpp b/libs/hwui/Properties.cpp
+index 064cac2a6fc6..bb2847157848 100644
+--- a/libs/hwui/Properties.cpp
++++ b/libs/hwui/Properties.cpp
+@@ -160,6 +160,7 @@ bool Properties::load() {
+     enablePartialUpdates = base::GetBoolProperty(PROPERTY_ENABLE_PARTIAL_UPDATES, true);
+ 
+     filterOutTestOverhead = base::GetBoolProperty(PROPERTY_FILTER_TEST_OVERHEAD, false);
++    waitForGpuCompletion = base::GetBoolProperty("debug.hwui.wait_for_gpu_completion", false);
+ 
+     skpCaptureEnabled = debuggingEnabled && base::GetBoolProperty(PROPERTY_CAPTURE_SKP_ENABLED, false);
+ 
+-- 
+2.56.0
+
