@@ -26,3 +26,6 @@ persist.radio.ROTATION_ENABLE=1
 persist.radio.VT_ENABLE=1
 persist.radio.VT_HYBRID_ENABLE=1
 persist.ims.disableUserAgent=1
+
+# Graphics / HWUI
+debug.hwui.wait_for_gpu_completion=true
