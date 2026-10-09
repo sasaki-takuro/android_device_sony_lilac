@@ -93,7 +93,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 5 つの必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 7 つの必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -103,6 +103,9 @@ git -C build/soong am ${PWD}/device/sony/lilac/patches/build_soong/*.patch
 
 # frameworks/base
 git -C frameworks/base am ${PWD}/device/sony/lilac/patches/frameworks_base/*.patch
+
+# frameworks/native
+git -C frameworks/native am ${PWD}/device/sony/lilac/patches/frameworks_native/*.patch
 
 # frameworks/opt/telephony
 git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_opt_telephony/*.patch
@@ -120,7 +123,11 @@ mka bacon
 ## 適用パッチ一覧（概要）
 * **`build_make`**: `avb_avb` が存在しない環境で `avbtool` へフォールバックさせる修正。
 * **`build_soong`**: Soong 定義イメージを使用しない場合に `fsgen` の内部モジュール生成をスキップする修正。
-* **`frameworks_base`**: `SQLiteTokenizer` における括弧チェックのサポートおよびビットマスク処理の修正。
+- **`frameworks_base`**:
+  * `SQLiteTokenizer` における括弧チェックのサポートおよびビットマスク処理の修正。
+  * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
+- **`frameworks_native`**:
+  * `SurfaceFlinger` の `captureScreenshot` における `RenderArea` 参照の解放後使用（Use-After-Free）を修正。
 * **`frameworks_opt_telephony`**:
   * シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   * レガシー HAL との互換性維持のための `RadioState` マッピング修正。

@@ -1,0 +1,107 @@
+From 1650c20d39448d07cd00be1b50b33d59cb9d99e3 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Fri, 9 Oct 2026 20:22:18 +0900
+Subject: [PATCH] surfaceflinger: Fix use-after-free in captureScreenshot
+
+Use std::shared_ptr for RenderArea across asynchronous render pipelines
+to prevent use-after-free crashes when renderScreenImpl executes on
+worker threads. Also defer composition present via scheduler.
+
+Change-Id: I7dd5842e7dbfaabbefbdbd1a4026b68122abc073
+---
+ services/surfaceflinger/SurfaceFlinger.cpp       | 16 +++++++++-------
+ services/surfaceflinger/SurfaceFlinger.h         |  2 +-
+ .../tests/unittests/TestableSurfaceFlinger.h     |  2 +-
+ 3 files changed, 11 insertions(+), 9 deletions(-)
+
+diff --git a/services/surfaceflinger/SurfaceFlinger.cpp b/services/surfaceflinger/SurfaceFlinger.cpp
+index 5947a43400..c2335b4e53 100644
+--- a/services/surfaceflinger/SurfaceFlinger.cpp
++++ b/services/surfaceflinger/SurfaceFlinger.cpp
+@@ -7503,7 +7503,7 @@ ftl::SharedFuture<FenceResult> SurfaceFlinger::captureScreenshot(
+     SFTRACE_CALL();
+ 
+     ScreenCaptureResults captureResults;
+-    std::unique_ptr<const RenderArea> renderArea =
++    std::shared_ptr<const RenderArea> renderArea =
+             std::visit([](auto&& arg) -> std::unique_ptr<RenderArea> { return arg.build(); },
+                        renderAreaBuilder);
+ 
+@@ -7519,7 +7519,7 @@ ftl::SharedFuture<FenceResult> SurfaceFlinger::captureScreenshot(
+     float sdrWhitePointNits = displayState.value().sdrWhitePointNits;
+ 
+     ftl::SharedFuture<FenceResult> renderFuture =
+-            renderScreenImpl(renderArea.get(), buffer, regionSampling, grayscale, isProtected,
++            renderScreenImpl(renderArea, buffer, regionSampling, grayscale, isProtected,
+                              captureResults, displayState, layers);
+ 
+     if (captureResults.capturedHdrLayers && attachGainmap &&
+@@ -7554,7 +7554,7 @@ ftl::SharedFuture<FenceResult> SurfaceFlinger::captureScreenshot(
+                                                                  Usage::WRITEABLE);
+             ScreenCaptureResults unusedResults;
+             ftl::SharedFuture<FenceResult> hdrRenderFuture =
+-                    renderScreenImpl(renderArea.get(), hdrTexture, regionSampling, grayscale,
++                    renderScreenImpl(renderArea, hdrTexture, regionSampling, grayscale,
+                                      isProtected, unusedResults, displayState, layers);
+ 
+             renderFuture =
+@@ -7602,7 +7602,7 @@ ftl::SharedFuture<FenceResult> SurfaceFlinger::captureScreenshot(
+ }
+ 
+ ftl::SharedFuture<FenceResult> SurfaceFlinger::renderScreenImpl(
+-        const RenderArea* renderArea, const std::shared_ptr<renderengine::ExternalTexture>& buffer,
++        std::shared_ptr<const RenderArea> renderArea, const std::shared_ptr<renderengine::ExternalTexture>& buffer,
+         bool regionSampling, bool grayscale, bool isProtected, ScreenCaptureResults& captureResults,
+         std::optional<OutputCompositionState>& displayState,
+         std::vector<std::pair<Layer*, sp<LayerFE>>>& layers) {
+@@ -7750,9 +7750,8 @@ ftl::SharedFuture<FenceResult> SurfaceFlinger::renderScreenImpl(
+     //
+     // TODO(b/196334700) Once we use RenderEngineThreaded everywhere we can always defer the call
+     // to CompositionEngine::present.
+-    ftl::SharedFuture<FenceResult> presentFuture = mRenderEngine->isThreaded()
+-            ? ftl::yield(present()).share()
+-            : mScheduler->schedule(std::move(present)).share();
++    ftl::SharedFuture<FenceResult> presentFuture =
++            mScheduler->schedule(std::move(present)).share();
+ 
+     return presentFuture;
+ }
+@@ -8360,6 +8359,9 @@ SurfaceFlinger::getLayerSnapshotsForScreenshots(
+                     if (layerStack && snapshot->outputFilter.layerStack != *layerStack) {
+                         return;
+                     }
++                    if (snapshot->outputFilter.toInternalDisplay) {
++                        return;
++                    }
+                     if (uid != CaptureArgs::UNSET_UID && snapshot->uid != gui::Uid(uid)) {
+                         return;
+                     }
+diff --git a/services/surfaceflinger/SurfaceFlinger.h b/services/surfaceflinger/SurfaceFlinger.h
+index 44856aef68..212cb3fb1c 100644
+--- a/services/surfaceflinger/SurfaceFlinger.h
++++ b/services/surfaceflinger/SurfaceFlinger.h
+@@ -886,7 +886,7 @@ private:
+             std::vector<std::pair<Layer*, sp<LayerFE>>>& layers);
+ 
+     ftl::SharedFuture<FenceResult> renderScreenImpl(
+-            const RenderArea*, const std::shared_ptr<renderengine::ExternalTexture>&,
++            std::shared_ptr<const RenderArea>, const std::shared_ptr<renderengine::ExternalTexture>&,
+             bool regionSampling, bool grayscale, bool isProtected, ScreenCaptureResults&,
+             std::optional<OutputCompositionState>& displayState,
+             std::vector<std::pair<Layer*, sp<LayerFE>>>& layers);
+diff --git a/services/surfaceflinger/tests/unittests/TestableSurfaceFlinger.h b/services/surfaceflinger/tests/unittests/TestableSurfaceFlinger.h
+index 7f0b7a6585..84d7fd5abf 100644
+--- a/services/surfaceflinger/tests/unittests/TestableSurfaceFlinger.h
++++ b/services/surfaceflinger/tests/unittests/TestableSurfaceFlinger.h
+@@ -473,7 +473,7 @@ public:
+         auto displayState = std::optional{display->getCompositionDisplay()->getState()};
+         auto layers = getLayerSnapshotsFn();
+ 
+-        return mFlinger->renderScreenImpl(renderArea.get(), buffer, regionSampling,
++        return mFlinger->renderScreenImpl(std::move(renderArea), buffer, regionSampling,
+                                           false /* grayscale */, false /* isProtected */,
+                                           captureResults, displayState, layers);
+     }
+-- 
+2.56.0
+
