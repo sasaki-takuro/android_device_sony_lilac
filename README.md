@@ -124,8 +124,8 @@ mka bacon
 * **`build_make`**: `avb_avb` が存在しない環境で `avbtool` へフォールバックさせる修正。
 * **`build_soong`**: Soong 定義イメージを使用しない場合に `fsgen` の内部モジュール生成をスキップする修正。
 - **`frameworks_base`**:
-  * `SQLiteTokenizer` における括弧チェックのサポートおよびビットマスク処理の修正。
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
+  * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
 - **`frameworks_native`**:
   * `SurfaceFlinger` の `captureScreenshot` における `RenderArea` 参照の解放後使用（Use-After-Free）を修正。
 * **`frameworks_opt_telephony`**:
