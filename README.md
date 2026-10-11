@@ -97,7 +97,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 7 つの必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 8 つの必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -113,6 +113,9 @@ git -C frameworks/native am ${PWD}/device/sony/lilac/patches/frameworks_native/*
 
 # frameworks/opt/telephony
 git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_opt_telephony/*.patch
+
+# packages/modules/Wifi
+git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
 ```
 
 ### 5. ビルド実行
@@ -135,6 +138,8 @@ mka bacon
 * **`frameworks_opt_telephony`**:
   * シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   * レガシー HAL との互換性維持のための `RadioState` マッピング修正。
+- **`packages_modules_Wifi`**:
+  * レガシー Wi-Fi チップセット非対応による `getCachedScanData failed (code 4)` の頻回なログ出力を抑止。
 
 ---
 
