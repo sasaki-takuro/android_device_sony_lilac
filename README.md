@@ -116,6 +116,9 @@ git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_o
 
 # packages/modules/Wifi
 git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
+
+# packages/apps/TilesWallpaper
+git -C packages/apps/TilesWallpaper am ${PWD}/device/sony/lilac/patches/packages_apps_TilesWallpaper/*.patch
 ```
 
 ### 5. ビルド実行
@@ -140,6 +143,9 @@ mka bacon
   * レガシー HAL との互換性維持のための `RadioState` マッピング修正。
 - **`packages_modules_Wifi`**:
   * レガシー Wi-Fi チップセット非対応による `getCachedScanData failed (code 4)` の頻回なログ出力を抑止。
+
+- **`packages_apps_TilesWallpaper`**:
+  * Adreno 540 環境における GPU フォールト・VBO 処理・シェーダー描画の修正、および不要な明示的 `glFlush` 呼び出しの除去による描画パイプラインの安定化。
 
 ---
 
