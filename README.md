@@ -72,6 +72,10 @@ NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM
    * `vendor_init.te` を改修し、`/vendor/build.prop` からのプロパティ読み込み時に `semc_version_prop`、`semc_product_prop`、`somc_oem_prop` への `set_prop` 権限を付与して拒否（denial）を解消。
 3. **アサートおよびターゲット名正規化**:
    * 機種判定から `G8441` を排除し、`SO-02K` 向けターゲットとして統一。
+4. **モデム書き換え機能・サービスのオミット**:
+   * 不意のベースバンド書き換えや競合を防ぐため、`sony-modem-switcher` サービスの自動起動停止および `OpenCustomizationSelector`（モデム切り替え機能）をオミット・無効化。
+5. **KernelSU（KernelSU Next）のデフォルト非搭載**:
+   * ビルド時に `WITH_KSU=true` を明示しない限りカーネル組み込みを行わない構成とし、標準リリースではオミット（標準のクリーンなカーネル状態を維持）。
 
 ---
 
