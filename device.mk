@@ -1,7 +1,7 @@
 ### PLATFORM
 $(call inherit-product, device/sony/yoshino-common/platform.mk)
 ### PROPRIETARY VENDOR FILES
-ifeq ($(TARGET_PRODUCT),aicp_lilac_dcm)
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
 include vendor/sony/lilac/lilac-vendor.mk
 PRODUCT_COPY_FILES := $(filter-out vendor/sony/lilac/proprietary/vendor/etc/libnfc-nci.conf:%,$(PRODUCT_COPY_FILES))
 else
