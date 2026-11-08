@@ -17,15 +17,10 @@ ro.semc.spn.newname=NTT DOCOMO
 ro.com.nttdocomo.videocall=true
 
 # IMS / VoLTE Flags
-persist.dbg.ims_volte_enable=1
 persist.dbg.volte_avail_ovr=1
 persist.dbg.vt_avail_ovr=1
 persist.vendor.radio.volte_switch=1
 persist.vendor.radio.imsregrequired=1
-persist.radio.ROTATION_ENABLE=1
-persist.radio.VT_ENABLE=1
-persist.radio.VT_HYBRID_ENABLE=1
-persist.ims.disableUserAgent=1
 
 # Graphics / HWUI
 debug.hwui.wait_for_gpu_completion=true
