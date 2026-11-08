@@ -56,3 +56,7 @@ PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS += \
 TARGET_USE_CUSTOM_POWERHINT := true
 
 include $(DEVICE_PATH)/device/*.mk
+
+# ADB Root
+PRODUCT_PACKAGES += \
+    adb_root
