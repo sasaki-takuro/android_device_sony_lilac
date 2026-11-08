@@ -1,10 +1,10 @@
-# Sony Xperia XZ1 Compact (SO-02K) を Android 15 化するビルド設定・手順書（カスタムROM AICPベース / 国内VoLTE対応）
+# Sony Xperia XZ1 Compact (SO-02K) を Android 15 化するビルド設定・手順書（LineageOS 22.2 ベース / 国内VoLTE対応）
 
 ## これは何？
-NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM：AICP 15 ベース）** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に動作させる** ためのデバイスツリーおよびビルド手順・修正パッチ一式です。
+NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（LineageOS 22.2）** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に動作させる** ためのデバイスツリーおよびビルド手順・修正パッチ一式です。
 
 * **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
-* **ベースOS**: AICP 15（LineageOS 22 / Android 15 ベース）
+* **ベースOS**: LineageOS 22.2（Android 15）
 * **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持、SO-02K 固有プロパティ群（`ro.semc.*` 等）の完全復元
 
 ---
@@ -79,20 +79,20 @@ NTTドコモ版 Xperia XZ1 Compact（SO-02K）に **Android 15（カスタムROM
 
 ---
 
-## AICP 15 ビルド再現手順
+## LineageOS 22.2 ビルド再現手順
 
 ### 1. ワークスペースの初期化
 ```bash
-mkdir -p ~/aicp15
-cd ~/aicp15
-repo init -u https://github.com/AICP/platform_manifest.git -b aicp-15 --git-lfs
+mkdir -p ~/lineage-22.2
+cd ~/lineage-22.2
+repo init -u https://github.com/LineageOS/android.git -b lineage-22.2 --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
 本リポジトリに含まれる再現用マニフェストを取得して配置します。
 ```bash
 mkdir -p .repo/local_manifests
-curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/aicp-15-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
+curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/lineage-22.2-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
 ```
 
 ### 3. ソースコードの同期
@@ -101,7 +101,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 11 個の必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 9 個の必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -121,15 +121,13 @@ git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_o
 # packages/modules/Wifi
 git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
 
-# packages/apps/TilesWallpaper
-git -C packages/apps/TilesWallpaper am ${PWD}/device/sony/lilac/patches/packages_apps_TilesWallpaper/*.patch
 ```
 
 ### 5. ビルド実行
 ```bash
 source build/envsetup.sh
-lunch aicp_lilac_dcm-bp1a-userdebug
-mka bacon
+lunch lineage_lilac_dcm-bp1a-userdebug
+m bacon
 ```
 
 ---
@@ -140,6 +138,7 @@ mka bacon
 - **`frameworks_base`**:
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
+  * SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
 - **`frameworks_native`**:
   * `SurfaceFlinger` の `captureScreenshot` における `RenderArea` 参照の解放後使用（Use-After-Free）を修正。
 * **`frameworks_opt_telephony`**:
@@ -148,8 +147,6 @@ mka bacon
 - **`packages_modules_Wifi`**:
   * レガシー Wi-Fi チップセット非対応による `getCachedScanData failed (code 4)` の頻回なログ出力を抑止。
 
-- **`packages_apps_TilesWallpaper`**:
-  * Adreno 540 環境における GPU フォールト・VBO 処理・シェーダー描画の修正、および不要な明示的 `glFlush` 呼び出しの除去による描画パイプラインの安定化。
 
 ---
 
