@@ -140,6 +140,7 @@ mka bacon
 - **`frameworks_base`**:
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
+  * SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
 - **`frameworks_native`**:
   * `SurfaceFlinger` の `captureScreenshot` における `RenderArea` 参照の解放後使用（Use-After-Free）を修正。
 * **`frameworks_opt_telephony`**:
