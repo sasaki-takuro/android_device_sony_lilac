@@ -1,0 +1,177 @@
+From f25c604d6765bd51e70dcc649ce5fb1868cdebbc Mon Sep 17 00:00:00 2001
+From: Milton <mingjuwu@google.com>
+Date: Fri, 15 May 2026 08:25:23 +0000
+Subject: [PATCH 07/13] Sanitize sensitive BiometricsSettingsBase extra
+
+External callers launching CombinedBiometricSettingsActivity could
+previously inject arbitrary EXTRA_USER_ID and EXTRA_KEY_GK_PW_HANDLE
+intent extras. This allowed unprivileged local apps to bypass device
+credential confirmation and manipulate biometric settings (such as
+Watch Unlock) for arbitrary users.
+
+This change ensures that sensitive intent extras (target user ID and
+gatekeeper password handle) are only accepted when the activity is
+launched internally by the Settings package itself. For external
+callers, it defaults to the current user and ignores any supplied
+gatekeeper password handle, properly enforcing the device credential
+confirmation flow.
+
+Bug: 490286986
+Test: atest CombinedBiometricProfileSettingsTest
+Flag: EXEMPT BUGFIX
+Cherrypick-From: https://googleplex-android-review.googlesource.com/q/commit:6b7ef885f660aff17008c2877b19a2d3f2092242
+Merged-In: Ife9b0bbf44d97fe1b7aef55a3cef053cdb9377af
+Change-Id: Ife9b0bbf44d97fe1b7aef55a3cef053cdb9377af
+---
+ .../combination/BiometricsSettingsBase.java   | 19 +++++++--
+ .../CombinedBiometricProfileSettingsTest.java | 41 +++++++++++++++++--
+ 2 files changed, 54 insertions(+), 6 deletions(-)
+
+diff --git a/src/com/android/settings/biometrics/combination/BiometricsSettingsBase.java b/src/com/android/settings/biometrics/combination/BiometricsSettingsBase.java
+index 1d8b7a10a3c..6d331ba8ce2 100644
+--- a/src/com/android/settings/biometrics/combination/BiometricsSettingsBase.java
++++ b/src/com/android/settings/biometrics/combination/BiometricsSettingsBase.java
+@@ -42,6 +42,7 @@ import androidx.annotation.VisibleForTesting;
+ import androidx.preference.Preference;
+ 
+ import com.android.settings.R;
++import com.android.settings.SettingsActivity;
+ import com.android.settings.Utils;
+ import com.android.settings.biometrics.BiometricEnrollBase;
+ import com.android.settings.biometrics.BiometricStatusPreferenceController;
+@@ -80,6 +81,7 @@ public abstract class BiometricsSettingsBase extends DashboardFragment {
+ 
+     protected int mUserId;
+     protected long mGkPwHandle;
++    private boolean mAllowInternalExtras;
+     private boolean mConfirmCredential;
+     private boolean mBiometricsAuthenticationRequested;
+     @Nullable private FaceManager mFaceManager;
+@@ -105,8 +107,18 @@ public abstract class BiometricsSettingsBase extends DashboardFragment {
+     @Override
+     public void onAttach(Context context) {
+         super.onAttach(context);
+-        mUserId = getActivity().getIntent().getIntExtra(Intent.EXTRA_USER_ID,
+-                UserHandle.myUserId());
++        mUserId = UserHandle.myUserId();
++        mAllowInternalExtras = false;
++
++        final Activity hostActivity = getActivity();
++        if (hostActivity instanceof SettingsActivity) {
++            final SettingsActivity activity = (SettingsActivity) hostActivity;
++            final String callingPackage = activity.getInitialCallingPackage();
++            if (TextUtils.equals(callingPackage, activity.getPackageName())) {
++                mAllowInternalExtras = true;
++                mUserId = activity.getIntent().getIntExtra(Intent.EXTRA_USER_ID, mUserId);
++            }
++        }
+     }
+ 
+     @Override
+@@ -115,7 +127,8 @@ public abstract class BiometricsSettingsBase extends DashboardFragment {
+         mFaceManager = Utils.getFaceManagerOrNull(getActivity());
+         mFingerprintManager = Utils.getFingerprintManagerOrNull(getActivity());
+ 
+-        if (BiometricUtils.containsGatekeeperPasswordHandle(getIntent())) {
++        if (mAllowInternalExtras
++                && BiometricUtils.containsGatekeeperPasswordHandle(getIntent())) {
+             mGkPwHandle = BiometricUtils.getGatekeeperPasswordHandle(getIntent());
+         }
+ 
+diff --git a/tests/robotests/src/com/android/settings/biometrics/combination/CombinedBiometricProfileSettingsTest.java b/tests/robotests/src/com/android/settings/biometrics/combination/CombinedBiometricProfileSettingsTest.java
+index 3dc011e7b86..07587e2a94d 100644
+--- a/tests/robotests/src/com/android/settings/biometrics/combination/CombinedBiometricProfileSettingsTest.java
++++ b/tests/robotests/src/com/android/settings/biometrics/combination/CombinedBiometricProfileSettingsTest.java
+@@ -42,6 +42,7 @@ import android.hardware.biometrics.Flags;
+ import android.hardware.face.FaceManager;
+ import android.hardware.fingerprint.FingerprintManager;
+ import android.os.Bundle;
++import android.os.UserHandle;
+ import android.platform.test.annotations.EnableFlags;
+ import android.platform.test.flag.junit.SetFlagsRule;
+ import android.util.AndroidRuntimeException;
+@@ -59,12 +60,14 @@ import androidx.preference.PreferenceScreen;
+ import androidx.test.core.app.ApplicationProvider;
+ 
+ import com.android.settings.R;
++import com.android.settings.SettingsActivity;
+ import com.android.settings.biometrics.face.FaceStatusPreferenceController;
+ import com.android.settings.biometrics.fingerprint.FingerprintStatusPreferenceController;
+ import com.android.settings.password.ChooseLockSettingsHelper;
+ import com.android.settings.password.ConfirmDeviceCredentialActivity;
+ import com.android.settings.testutils.FakeFeatureFactory;
+ import com.android.settings.testutils.shadow.ShadowFragment;
++import com.android.settings.testutils.shadow.ShadowPasswordUtils;
+ import com.android.settings.testutils.shadow.ShadowSettingsPreferenceFragment;
+ import com.android.settings.testutils.shadow.ShadowUtils;
+ import com.android.settingslib.core.AbstractPreferenceController;
+@@ -89,7 +92,8 @@ import java.util.List;
+ import java.util.Map;
+ 
+ @RunWith(RobolectricTestRunner.class)
+-@Config(shadows = {ShadowSettingsPreferenceFragment.class, ShadowUtils.class, ShadowFragment.class})
++@Config(shadows = {ShadowSettingsPreferenceFragment.class, ShadowUtils.class, ShadowFragment.class,
++        ShadowPasswordUtils.class})
+ public class CombinedBiometricProfileSettingsTest {
+ 
+     private TestCombinedBiometricProfileSettings mFragment;
+@@ -120,9 +124,9 @@ public class CombinedBiometricProfileSettingsTest {
+         ShadowUtils.setFingerprintManager(mFingerprintManager);
+         ShadowUtils.setFaceManager(mFaceManager);
+         FakeFeatureFactory.setupForTest();
+-
+-        mActivity = spy(Robolectric.buildActivity(FragmentActivity.class,
++        mActivity = spy(Robolectric.buildActivity(SettingsActivity.class,
+                 new Intent().putExtra(ChooseLockSettingsHelper.EXTRA_KEY_GK_PW_HANDLE, 1L)).get());
++        ShadowPasswordUtils.setCallingAppPackageName(mActivity.getPackageName());
+         mContext = spy(ApplicationProvider.getApplicationContext());
+         mFragment = spy(new TestCombinedBiometricProfileSettings(mContext));
+         doReturn(mActivity).when(mFragment).getActivity();
+@@ -174,6 +178,7 @@ public class CombinedBiometricProfileSettingsTest {
+     @After
+     public void tearDown() {
+         ShadowUtils.reset();
++        ShadowPasswordUtils.reset();
+     }
+ 
+     @Test
+@@ -437,6 +442,36 @@ public class CombinedBiometricProfileSettingsTest {
+         verify(mFragment, never()).launchChooseOrConfirmLock();
+     }
+ 
++    @Test
++    public void testInternalCaller_allowsSensitiveExtras() {
++        Intent intent = new Intent(mActivity.getIntent());
++        intent.putExtra(Intent.EXTRA_USER_ID, 10);
++        intent.putExtra(ChooseLockSettingsHelper.EXTRA_KEY_GK_PW_HANDLE, 12345L);
++        mActivity.setIntent(intent);
++
++        mFragment.onAttach((Context) mActivity);
++        mFragment.onCreate(Bundle.EMPTY);
++
++        assertThat(mFragment.getUserId()).isEqualTo(10);
++        assertThat(mFragment.getGkPwHandle()).isEqualTo(12345L);
++    }
++
++    @Test
++    public void testExternalCaller_ignoresSensitiveExtras() {
++        Intent intent = new Intent(mActivity.getIntent());
++        intent.putExtra(Intent.EXTRA_USER_ID, 10);
++        intent.putExtra(ChooseLockSettingsHelper.EXTRA_KEY_GK_PW_HANDLE, 12345L);
++        intent.putExtra(SettingsActivity.EXTRA_INITIAL_CALLING_PACKAGE, "com.poc.app");
++        mActivity.setIntent(intent);
++
++        mFragment.onAttach((Context) mActivity);
++        mFragment.onCreate(Bundle.EMPTY);
++
++        assertThat(mFragment.getUserId()).isEqualTo(UserHandle.myUserId());
++        assertThat(mFragment.getGkPwHandle()).isEqualTo(0L);
++        verify(mFragment).launchChooseOrConfirmLock();
++    }
++
+     /**
+      * a test fragment that initializes PreferenceScreen for testing.
+      */
+-- 
+2.56.0
+

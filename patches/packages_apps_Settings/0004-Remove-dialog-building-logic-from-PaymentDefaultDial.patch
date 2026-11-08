@@ -1,0 +1,43 @@
+From 0b529ae974d4ea3a02860a333dd6fca89f66f59f Mon Sep 17 00:00:00 2001
+From: Kyle Hsiao <kylehsiao@google.com>
+Date: Wed, 8 Apr 2026 01:36:37 -0700
+Subject: [PATCH 04/13] Remove dialog building logic from PaymentDefaultDialog
+ onCreate.
+
+The code to extract intent extras and build the default payment dialog is no longer executed in the onCreate method.
+
+Bug: 490605007
+Test: atest CtsNfcTestCases
+Test: atest NfcNciUnitTests
+Test: atest CtsNfcHceMultiDeviceTestCase
+Flag: EXEMPT BUGFIX
+Change-Id: I9224a3aec3ecb2c8bbf3fe3ee966afaf782cb9c4
+Merged-In: I9224a3aec3ecb2c8bbf3fe3ee966afaf782cb9c4
+(cherry picked from commit c2f680bf6093ab63403d681d9d283e09797d6bfe)
+---
+ src/com/android/settings/nfc/PaymentDefaultDialog.java | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
+
+diff --git a/src/com/android/settings/nfc/PaymentDefaultDialog.java b/src/com/android/settings/nfc/PaymentDefaultDialog.java
+index d333b3da6ac..d556b6df929 100644
+--- a/src/com/android/settings/nfc/PaymentDefaultDialog.java
++++ b/src/com/android/settings/nfc/PaymentDefaultDialog.java
+@@ -58,14 +58,7 @@ public final class PaymentDefaultDialog extends AlertActivity implements
+         ComponentName component = intent.getParcelableExtra(
+                 CardEmulation.EXTRA_SERVICE_COMPONENT);
+         String category = intent.getStringExtra(CardEmulation.EXTRA_CATEGORY);
+-        UserHandle userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
+-
+-        int userId;
+-        if (userHandle == null) {
+-            userId = UserHandle.myUserId();
+-        } else {
+-            userId = userHandle.getIdentifier();
+-        }
++        int userId = UserHandle.myUserId();
+ 
+         setResult(RESULT_CANCELED);
+         if (!buildDialog(component, category, userId)) {
+-- 
+2.56.0
+

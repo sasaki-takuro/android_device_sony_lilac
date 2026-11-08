@@ -1,0 +1,76 @@
+From 0adb1d7853bc54710ae8a239f89ae64a3fca3496 Mon Sep 17 00:00:00 2001
+From: Charles Chen <charlesccchen@google.com>
+Date: Tue, 23 Dec 2025 03:10:47 +0000
+Subject: [PATCH 05/13] Use setHideOverlayWindows instead of AppOpsManager
+
+... to hide non-system overlay windows
+
+Previously, DeviceAdminAdd added the check in onResume, and removed the
+check in onPause. However it didn't stop overlay window showing again without
+SYSTEM_ALERT_WINDOW permission when the restrictions are released.
+
+This fix use Window#setHideOverlayWindows mechanism instead to prevent
+any non-system overlay window shown on top of the window.
+
+Test: presubmit
+Bug: 463364901
+Flag: EXEMPT bugfix
+Cherrypick-From: https://googleplex-android-review.googlesource.com/q/commit:29a720d9f2e44a8d92a6954a7a26e7f4847c536c
+Merged-In: I8fbf398d2a52db46ee69c87c94954c44fba07981
+Change-Id: I8fbf398d2a52db46ee69c87c94954c44fba07981
+---
+ .../specialaccess/deviceadmin/DeviceAdminAdd.java      | 10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
+
+diff --git a/src/com/android/settings/applications/specialaccess/deviceadmin/DeviceAdminAdd.java b/src/com/android/settings/applications/specialaccess/deviceadmin/DeviceAdminAdd.java
+index bb9876bd212..078a2dbdf2b 100644
+--- a/src/com/android/settings/applications/specialaccess/deviceadmin/DeviceAdminAdd.java
++++ b/src/com/android/settings/applications/specialaccess/deviceadmin/DeviceAdminAdd.java
+@@ -34,7 +34,6 @@ import static android.app.admin.DevicePolicyResources.Strings.Settings.WORK_PROF
+ 
+ import android.app.Activity;
+ import android.app.ActivityManager;
+-import android.app.AppOpsManager;
+ import android.app.Dialog;
+ import android.app.admin.DeviceAdminInfo;
+ import android.app.admin.DeviceAdminReceiver;
+@@ -121,7 +120,6 @@ public class DeviceAdminAdd extends CollapsingToolbarBaseActivity {
+     Handler mHandler;
+ 
+     DevicePolicyManager mDPM;
+-    AppOpsManager mAppOps;
+     DeviceAdminInfo mDeviceAdmin;
+     String mAddMsgText;
+ 
+@@ -157,7 +155,7 @@ public class DeviceAdminAdd extends CollapsingToolbarBaseActivity {
+         mHandler = new Handler(getMainLooper());
+ 
+         mDPM = getSystemService(DevicePolicyManager.class);
+-        mAppOps = getSystemService(AppOpsManager.class);
++        getWindow().setHideOverlayWindows(true);
+         mLayoutInflaternflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+         PackageManager packageManager = getPackageManager();
+ 
+@@ -588,10 +586,6 @@ public class DeviceAdminAdd extends CollapsingToolbarBaseActivity {
+         if (!mAddingProfileOwner) {
+             updateInterface();
+         }
+-        // As long as we are running, don't let anyone overlay stuff on top of the screen.
+-        mAppOps.setUserRestriction(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, true, mToken);
+-        mAppOps.setUserRestriction(AppOpsManager.OP_TOAST_WINDOW, true, mToken);
+-
+     }
+ 
+     @Override
+@@ -599,8 +593,6 @@ public class DeviceAdminAdd extends CollapsingToolbarBaseActivity {
+         super.onPause();
+         // This just greys out the button. The actual listener is attached to R.id.restricted_action
+         mActionButton.setEnabled(false);
+-        mAppOps.setUserRestriction(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, false, mToken);
+-        mAppOps.setUserRestriction(AppOpsManager.OP_TOAST_WINDOW, false, mToken);
+         try {
+             ActivityManager.getService().resumeAppSwitches();
+         } catch (RemoteException e) {
+-- 
+2.56.0
+

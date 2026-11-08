@@ -101,7 +101,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 9 個の必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 23 個の必須・セキュリティパッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -121,6 +121,9 @@ git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_o
 # packages/modules/Wifi
 git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
 
+# packages/apps/Settings
+git -C packages/apps/Settings am ${PWD}/device/sony/lilac/patches/packages_apps_Settings/*.patch
+
 ```
 
 ### 5. ビルド実行
@@ -136,6 +139,7 @@ mka bacon
 * **`build_make`**: `avb_avb` が存在しない環境で `avbtool` へフォールバックさせる修正。
 * **`build_soong`**: Soong 定義イメージを使用しない場合に `fsgen` の内部モジュール生成をスキップする修正。
 - **`frameworks_base`**:
+    * `SQLiteTokenizer` のバックポート修正（セキュリティ）。
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
   * SystemUI における音量スライダーオーバーレイの中央表示対応。
@@ -146,6 +150,8 @@ mka bacon
   * レガシー HAL との互換性維持のための `RadioState` マッピング修正。
 - **`packages_modules_Wifi`**:
   * レガシー Wi-Fi チップセット非対応による `getCachedScanData failed (code 4)` の頻回なログ出力を抑止。
+- **`packages_apps_Settings`**:
+  * セキュリティ脆弱性修正のバックポート（DeviceAdminInfo、BiometricsSettingsBase等）および翻訳インポート（計13件）。
 
 
 ---

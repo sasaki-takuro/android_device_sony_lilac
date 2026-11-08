@@ -1,0 +1,164 @@
+From 916b9cd833e3e9200043d45e5fdbc24b435b191c Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Fri, 6 Nov 2026 19:29:29 +0900
+Subject: [PATCH 1/4] SQLiteTokenizer: Backport tokenize changes
+
+---
+ .../database/sqlite/SQLiteTokenizer.java      | 47 ++++++++++++++++---
+ .../database/sqlite/SQLiteTokenizerTest.java  | 31 ++++++++++++
+ 2 files changed, 72 insertions(+), 6 deletions(-)
+
+diff --git a/core/java/android/database/sqlite/SQLiteTokenizer.java b/core/java/android/database/sqlite/SQLiteTokenizer.java
+index 7e7c3fb976c7..3ebeb179a5ba 100644
+--- a/core/java/android/database/sqlite/SQLiteTokenizer.java
++++ b/core/java/android/database/sqlite/SQLiteTokenizer.java
+@@ -69,6 +69,12 @@ public class SQLiteTokenizer {
+      */
+     public static final int OPTION_TOKEN_ONLY = 1 << 0;
+ 
++    /**
++     * Checks brackets; an unbalanced expression or one that attempts to close an
++     * earlier bracket will result in an exception.
++     */
++    public static final int OPTION_CHECK_BRACKETS = 1 << 1;
++
+     /**
+      * Tokenize the given SQL, returning the list of each encountered token.
+      *
+@@ -86,11 +92,13 @@ public class SQLiteTokenizer {
+      *
+      * @throws IllegalArgumentException if invalid SQL is encountered.
+      */
+-    public static void tokenize(@Nullable String sql, int options, Consumer<String> checker) {
++    public static void tokenize(@Nullable String sql, int options,
++            @Nullable Consumer<String> checker) {
+         if (sql == null) {
+             return;
+         }
+         int pos = 0;
++        int level = 0;
+         final int len = sql.length();
+         while (pos < len) {
+             final char ch = peek(sql, pos);
+@@ -105,7 +113,9 @@ public class SQLiteTokenizer {
+                 final int end = pos;
+ 
+                 final String token = sql.substring(start, end);
+-                checker.accept(token);
++                if (checker != null) {
++                    checker.accept(token);
++                }
+ 
+                 continue;
+             }
+@@ -142,9 +152,11 @@ public class SQLiteTokenizer {
+                     } else {
+                         token = tokenUnquoted;
+                     }
+-                    checker.accept(token);
++                    if (checker != null) {
++                        checker.accept(token);
++                    }
+                 } else {
+-                    if ((options &= OPTION_TOKEN_ONLY) != 0) {
++                    if ((options & OPTION_TOKEN_ONLY) != 0) {
+                         throw genException("Non-token detected", sql);
+                     }
+                 }
+@@ -164,10 +176,12 @@ public class SQLiteTokenizer {
+ 
+                 final String token = sql.substring(quoteStart + 1, quoteEnd);
+ 
+-                checker.accept(token);
++                if (checker != null) {
++                    checker.accept(token);
++                }
+                 continue;
+             }
+-            if ((options &= OPTION_TOKEN_ONLY) != 0) {
++            if ((options & OPTION_TOKEN_ONLY) != 0) {
+                 throw genException("Non-token detected", sql);
+             }
+ 
+@@ -199,11 +213,32 @@ public class SQLiteTokenizer {
+                 throw genException("Semicolon is not allowed", sql);
+             }
+ 
++            if (ch == '(') {
++                pos++;
++                level++;
++
++                continue;
++            }
++
++            if (ch == ')') {
++                pos++;
++                level--;
++                if (level < 0 && (options & OPTION_CHECK_BRACKETS) != 0) {
++                    throw genException("Unbalanced brackets", sql);
++                }
++
++                continue;
++            }
++
+             // For this purpose, we can simply ignore other characters.
+             // (Note it doesn't handle the X'' literal properly and reports this X as a token,
+             // but that should be fine...)
+             pos++;
+         }
++
++        if (level != 0 && (options & OPTION_CHECK_BRACKETS) != 0) {
++            throw genException("Unbalanced brackets", sql);
++        }
+     }
+ 
+     /**
+diff --git a/core/tests/coretests/src/android/database/sqlite/SQLiteTokenizerTest.java b/core/tests/coretests/src/android/database/sqlite/SQLiteTokenizerTest.java
+index ced18469c6d0..f029c3a4976e 100644
+--- a/core/tests/coretests/src/android/database/sqlite/SQLiteTokenizerTest.java
++++ b/core/tests/coretests/src/android/database/sqlite/SQLiteTokenizerTest.java
+@@ -164,10 +164,41 @@ public class SQLiteTokenizerTest {
+         checkTokens("`;`", ";");
+     }
+ 
++    @Test
++    public void testCheckBrackets() {
++        SQLiteTokenizer.tokenize("((a) b)", SQLiteTokenizer.OPTION_CHECK_BRACKETS);
++        try {
++            SQLiteTokenizer.tokenize("((a) b", SQLiteTokenizer.OPTION_CHECK_BRACKETS);
++            fail("Should have thrown");
++        } catch (IllegalArgumentException expected) {
++            assertEquals("Unbalanced brackets in '((a) b'", expected.getMessage());
++        }
++        try {
++            SQLiteTokenizer.tokenize("(a) b)", SQLiteTokenizer.OPTION_CHECK_BRACKETS);
++            fail("Should have thrown");
++        } catch (IllegalArgumentException expected) {
++            assertEquals("Unbalanced brackets in '(a) b)'", expected.getMessage());
++        }
++        try {
++            SQLiteTokenizer.tokenize("1=1)) OR ((1=1", SQLiteTokenizer.OPTION_CHECK_BRACKETS);
++            fail("Should have thrown");
++        } catch (IllegalArgumentException expected) {
++            assertEquals("Unbalanced brackets in '1=1)) OR ((1=1'", expected.getMessage());
++        }
++    }
++
+     @Test
+     public void testTokens() {
+         checkTokens("a,abc,a00b,_1,_123,abcdef", "a abc a00b _1 _123 abcdef");
+         checkTokens("a--\nabc/**/a00b''_1'''ABC'''`_123`abc[d]\"e\"f",
+                 "a abc a00b _1 _123 abc d e f");
+     }
++
++    @Test
++    public void testCheckBracketsInComments() {
++        SQLiteTokenizer.tokenize("((a) -- comment with unmatched bracket )\n b)",
++                SQLiteTokenizer.OPTION_CHECK_BRACKETS);
++        SQLiteTokenizer.tokenize("((a) /* comment with unmatched bracket ) */ b)",
++                SQLiteTokenizer.OPTION_CHECK_BRACKETS);
++    }
+ }
+-- 
+2.56.0
+

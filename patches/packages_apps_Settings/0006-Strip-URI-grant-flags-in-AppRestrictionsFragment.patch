@@ -1,0 +1,141 @@
+From 6d602877a4068455f88192c46162e5b85a6dc106 Mon Sep 17 00:00:00 2001
+From: Tetiana Meronyk <tetianameronyk@google.com>
+Date: Mon, 27 Apr 2026 10:06:01 -0700
+Subject: [PATCH 06/13] Strip URI grant flags in AppRestrictionsFragment
+
+This change explicitly removes URI grant flags and clears data/clipData
+from the intent before starting the custom activity.
+
+Bug: 491253353
+Test: atest SettingsRoboTests:com.android.settings.users.AppRestrictionsFragmentTest
+Flag: EXEMPT BUGFIX
+Cherrypick-From: https://googleplex-android-review.googlesource.com/q/commit:adde2e48746e2190e068b3b17000bc5b522e5ef4
+Merged-In: I31ac402132df1bfb23612e350095004055160b57
+Change-Id: I31ac402132df1bfb23612e350095004055160b57
+---
+ .../users/AppRestrictionsFragment.java        |  6 ++
+ .../users/AppRestrictionsFragmentTest.java    | 95 +++++++++++++++++++
+ 2 files changed, 101 insertions(+)
+ create mode 100644 tests/robotests/src/com/android/settings/users/AppRestrictionsFragmentTest.java
+
+diff --git a/src/com/android/settings/users/AppRestrictionsFragment.java b/src/com/android/settings/users/AppRestrictionsFragment.java
+index 5b2a86fff42..d4e250d5d84 100644
+--- a/src/com/android/settings/users/AppRestrictionsFragment.java
++++ b/src/com/android/settings/users/AppRestrictionsFragment.java
+@@ -683,6 +683,12 @@ public class AppRestrictionsFragment extends SettingsPreferenceFragment implemen
+             // that were used to do the vetting, since that's as much as we've verified is safe.
+             vettedIntent.setComponent(activityInfo.getComponentName());
+             vettedIntent.setPackage(activityInfo.packageName);
++            vettedIntent.removeFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
++                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
++                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
++                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
++            vettedIntent.setData(null);
++            vettedIntent.setClipData(null);
+             return vettedIntent;
+         }
+     }
+diff --git a/tests/robotests/src/com/android/settings/users/AppRestrictionsFragmentTest.java b/tests/robotests/src/com/android/settings/users/AppRestrictionsFragmentTest.java
+new file mode 100644
+index 00000000000..31a7abea6a9
+--- /dev/null
++++ b/tests/robotests/src/com/android/settings/users/AppRestrictionsFragmentTest.java
+@@ -0,0 +1,95 @@
++/*
++ * Copyright (C) 2026 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++package com.android.settings.users;
++
++import static com.google.common.truth.Truth.assertThat;
++import static org.mockito.ArgumentMatchers.any;
++import static org.mockito.ArgumentMatchers.anyInt;
++import static org.mockito.Mockito.mock;
++import static org.mockito.Mockito.when;
++
++import android.content.ComponentName;
++import android.content.Context;
++import android.content.Intent;
++import android.content.pm.ActivityInfo;
++import android.content.pm.PackageManager;
++import android.content.pm.ResolveInfo;
++import android.net.Uri;
++
++import org.junit.Before;
++import org.junit.Rule;
++import org.junit.Test;
++import org.junit.runner.RunWith;
++import org.mockito.Mock;
++import org.mockito.junit.MockitoJUnit;
++import org.mockito.junit.MockitoRule;
++import org.robolectric.RobolectricTestRunner;
++import org.robolectric.RuntimeEnvironment;
++import org.robolectric.util.ReflectionHelpers;
++
++@RunWith(RobolectricTestRunner.class)
++public class AppRestrictionsFragmentTest {
++
++    @Rule
++    public final MockitoRule mMockitoRule = MockitoJUnit.rule();
++
++    private AppRestrictionsFragment mFragment;
++    private AppRestrictionsFragment.RestrictionsResultReceiver mReceiver;
++
++    @Mock
++    private PackageManager mPackageManager;
++
++    @Before
++    public void setUp() {
++        mFragment = new AppRestrictionsFragment();
++        ReflectionHelpers.setField(mFragment, "mPackageManager", mPackageManager);
++
++        mReceiver = mFragment.new RestrictionsResultReceiver("com.example.app", null, false);
++    }
++
++    @Test
++    public void assertSafeToStartCustomActivity_stripsSensitiveData() {
++        Intent intent = new Intent("com.example.action");
++        intent.setPackage("com.example.app");
++        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
++                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
++                | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
++                | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
++        intent.setData(Uri.parse("content://com.android.settings.files/secret"));
++        intent.setClipData(android.content.ClipData.newRawUri("secret",
++                Uri.parse("content://com.android.settings.files/secret")));
++
++        ResolveInfo resolveInfo = new ResolveInfo();
++        resolveInfo.activityInfo = new ActivityInfo();
++        resolveInfo.activityInfo.packageName = "com.example.app";
++        resolveInfo.activityInfo.name = "com.example.app.CustomActivity";
++
++        when(mPackageManager.resolveActivity(any(Intent.class), anyInt())).thenReturn(resolveInfo);
++
++        Intent vettedIntent = ReflectionHelpers.callInstanceMethod(mReceiver,
++                "assertSafeToStartCustomActivity",
++                ReflectionHelpers.ClassParameter.from(Intent.class, intent));
++
++        assertThat(vettedIntent.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION).isEqualTo(0);
++        assertThat(vettedIntent.getFlags() & Intent.FLAG_GRANT_WRITE_URI_PERMISSION).isEqualTo(0);
++        assertThat(vettedIntent.getFlags() & Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION)
++                .isEqualTo(0);
++        assertThat(vettedIntent.getFlags() & Intent.FLAG_GRANT_PREFIX_URI_PERMISSION).isEqualTo(0);
++        assertThat(vettedIntent.getData()).isNull();
++        assertThat(vettedIntent.getClipData()).isNull();
++    }
++}
+-- 
+2.56.0
+

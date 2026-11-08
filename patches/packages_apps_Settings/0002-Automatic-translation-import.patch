@@ -1,0 +1,89 @@
+From 2d878e545a1551ca5b91a82a69d3ec2a4b3e4741 Mon Sep 17 00:00:00 2001
+From: LineageOS Infra <infra@lineageos.org>
+Date: Tue, 1 Sep 2026 10:10:54 +0000
+Subject: [PATCH 02/13] Automatic translation import
+
+Change-Id: I66402634f3920bfa55ea3e894c603cc7a9166415
+---
+ res/values-bg/cm_strings.xml |  6 ++++--
+ res/values-iw/cm_strings.xml | 14 +++++++-------
+ res/values-sl/cm_strings.xml |  4 ++--
+ 3 files changed, 13 insertions(+), 11 deletions(-)
+
+diff --git a/res/values-bg/cm_strings.xml b/res/values-bg/cm_strings.xml
+index 202fb0525d3..07f45a39da2 100644
+--- a/res/values-bg/cm_strings.xml
++++ b/res/values-bg/cm_strings.xml
+@@ -60,8 +60,10 @@
+     <string name="fingerprint_enroll_touch_dialog_message_rear" product="tablet">Докоснете сензора на гърба на таблета ви.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_rear" product="device">Докоснете сензора на гърба на устройството ви.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_rear" product="default">Докоснете сензора на гърба на телефона ви.</string>
+-    <string name="fingerprint_enroll_touch_dialog_message_side" product="tablet">Докоснете сензора отстрани на таблета ви.</string>
+-    <string name="fingerprint_enroll_touch_dialog_message_side" product="device">Докоснете сензора отсрани на устройството ви.</string>
++    <string name="fingerprint_enroll_touch_dialog_message_side" product="tablet">Докоснете сензора отстрани на таблета ви.
++</string>
++    <string name="fingerprint_enroll_touch_dialog_message_side" product="device">Докоснете сензора отсрани на устройството ви.
++</string>
+     <string name="fingerprint_enroll_touch_dialog_message_side" product="default">Докоснета сензора отстрани на телефона ви.</string>
+     <string name="security_settings_require_screen_on_to_auth_with_proximity_description">Докоснете сензора, за да отключите, дори когато екранът е изключен. Сензорът за близост предотвратява неволно октлючване.</string>
+     <string name="show_navbar_hint_title">Подсказки за навигация</string>
+diff --git a/res/values-iw/cm_strings.xml b/res/values-iw/cm_strings.xml
+index 07fa417c03d..d57223c21dd 100644
+--- a/res/values-iw/cm_strings.xml
++++ b/res/values-iw/cm_strings.xml
+@@ -46,22 +46,22 @@
+     <string name="max_refresh_rate_title">קצב רענון מקסימלי</string>
+     <string name="min_refresh_rate_title">קצב רענון מינימלי </string>
+     <string name="fingerprint_enroll_find_sensor_message_front" product="tablet">ניתן למצוא את חיישן טביעת אצבע בחזית הטאבלט שלך.</string>
+-    <string name="fingerprint_enroll_find_sensor_message_front" product="device">ניתן למצוא את חיישן טביעת אצבע בחזית ההתקן שלך.</string>
++    <string name="fingerprint_enroll_find_sensor_message_front" product="device">ניתן למצוא את חיישן טביעת אצבע בחזית מכשירך.</string>
+     <string name="fingerprint_enroll_find_sensor_message_front" product="default">ניתן למצוא את חיישן טביעת אצבע בחזית הטלפון שלך.</string>
+     <string name="fingerprint_enroll_find_sensor_message_rear" product="tablet">ניתן למצוא את חיישן טביעת אצבע בגב הטאבלט שלך.</string>
+-    <string name="fingerprint_enroll_find_sensor_message_rear" product="device">ניתן למצוא את חיישן טביעת אצבע בגב ההתקן שלך.</string>
++    <string name="fingerprint_enroll_find_sensor_message_rear" product="device">ניתן למצוא את חיישן טביעת אצבע בגב מכשירך.</string>
+     <string name="fingerprint_enroll_find_sensor_message_rear" product="default">ניתן למצוא את חיישן טביעת אצבע בגב הטלפון שלך.</string>
+     <string name="fingerprint_enroll_find_sensor_message_side" product="tablet">ניתן למצוא את חיישן טביעת אצבע בצד הטאבלט שלך.</string>
+-    <string name="fingerprint_enroll_find_sensor_message_side" product="device">ניתן למצוא את חיישן טביעת אצבע בצד ההתקן שלך.</string>
++    <string name="fingerprint_enroll_find_sensor_message_side" product="device">ניתן למצוא את חיישן טביעת אצבע בצד מכשירך.</string>
+     <string name="fingerprint_enroll_find_sensor_message_side" product="default">ניתן למצוא את חיישן טביעת אצבע בצד הטלפון שלך.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_front" product="tablet">יש לגעת בחיישן בחזית הטאבלט שלך.</string>
+-    <string name="fingerprint_enroll_touch_dialog_message_front" product="device">יש לגעת בחיישן בחזית ההתקן שלך.</string>
++    <string name="fingerprint_enroll_touch_dialog_message_front" product="device">יש לגעת בחיישן בחזית מכשירך.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_front" product="default">יש לגעת בחיישן בחזית הטלפון שלך.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_rear" product="tablet">יש לגעת בחיישן בגב הטאבלט שלך.</string>
+-    <string name="fingerprint_enroll_touch_dialog_message_rear" product="device">יש לגעת בחיישן בגב ההתקן שלך.</string>
++    <string name="fingerprint_enroll_touch_dialog_message_rear" product="device">יש לגעת בחיישן בגב מכשירך.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_rear" product="default">יש לגעת בחיישן בגב הטלפון שלך.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_side" product="tablet">יש לגעת בחיישן בצד הטאבלט שלך.</string>
+-    <string name="fingerprint_enroll_touch_dialog_message_side" product="device">יש לגעת בחיישן בצד ההתקן שלך.</string>
++    <string name="fingerprint_enroll_touch_dialog_message_side" product="device">יש לגעת בחיישן בצד מכשירך.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_side" product="default">יש לגעת בחיישן בצד הטלפון שלך.</string>
+     <string name="security_settings_require_screen_on_to_auth_with_proximity_description">יש לגעת בחיישן כדי לפתוח את הנעילה, גם כשהמסך כבוי. חיישן קירבה מונע פתיחה מקרית.</string>
+     <string name="show_navbar_hint_title">רמז לניווט</string>
+@@ -87,7 +87,7 @@
+     <string name="wake_when_plugged_or_unplugged_title">יעירו בעת חיבור</string>
+     <string name="wake_when_plugged_or_unplugged_summary">הפעל את המסך כאשר מקור חשמל מתחבר או מתנתק מהמכשיר</string>
+     <string name="fast_charging_title">טעינה מהירה</string>
+-    <string name="fast_charging_summary">ניתן להשבית על מנת להפחית את חימום ההתקן בזמן טעינה או להאריך את חיי הסוללה</string>
++    <string name="fast_charging_summary">ניתן להשבית על מנת להפחית את חימום מכשירך בזמן טעינה או להאריך את חיי הסוללה</string>
+     <string name="storage_warning_internal">אזהרה: אפשרות זו לא מומלצת! ייתכן שלא תפעל כראוי, או תגרום לאובדן נתונים.</string>
+     <string name="assisted_gps">שימוש במסייע GPS</string>
+     <string name="assisted_gps_summary">הורדת נתוני סיוע לווייני מהאינטרנט שיכולים לשפר מאוד את ביצועי ההפעלה של ה-GPS. בקריאות חירום, נתוני סיוע ל-GPS מאופשרים תמיד.</string>
+diff --git a/res/values-sl/cm_strings.xml b/res/values-sl/cm_strings.xml
+index 24bbaff4f2d..d4f481a01ea 100644
+--- a/res/values-sl/cm_strings.xml
++++ b/res/values-sl/cm_strings.xml
+@@ -17,8 +17,8 @@
+ <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+     <string name="keyboard_extras_title">Dodatki</string>
+     <string name="advanced_keyboard_settings_title">Napredne nastavitve</string>
+-    <string name="adb_enable_root">Skrbniško razhroščevanje</string>
+-    <string name="adb_enable_summary_root">Dovoli izvajanje Android razhroščevanja kot skrbnik</string>
++    <string name="adb_enable_root">Skrbniško odpravljanje napak</string>
++    <string name="adb_enable_summary_root">Dovoli izvajanje Android odpravljanja napak kot skrbnik</string>
+     <string name="backup_transport_setting_label">Spremeni ponudnika varnostnih kopij</string>
+     <string name="backup_transport_title">Izberite ponudnika varnostnih kopij</string>
+     <string name="berry_black_theme_title">Popolnoma črna</string>
+-- 
+2.56.0
+

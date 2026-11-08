@@ -1,7 +1,7 @@
-From e0f3c99f812deacdc4cbed851b94cccd1fbec50d Mon Sep 17 00:00:00 2001
+From 3b9ba9a28696afde90025685f239d27ad2c3189d Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Fri, 9 Oct 2026 20:14:30 +0900
-Subject: [PATCH 1/2] hwui: Read debug.hwui.wait_for_gpu_completion property
+Subject: [PATCH 2/4] hwui: Read debug.hwui.wait_for_gpu_completion property
 
 Allow toggling waitForGpuCompletion dynamically via system property
 to synchronize GPU completion fences, preventing Protocol error crashes

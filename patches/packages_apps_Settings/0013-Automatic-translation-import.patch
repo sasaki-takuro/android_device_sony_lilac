@@ -1,0 +1,58 @@
+From 1f3fa79677e5031c9a7ceb86188b8bd6f5bafb48 Mon Sep 17 00:00:00 2001
+From: LineageOS Infra <infra@lineageos.org>
+Date: Thu, 15 Oct 2026 10:05:44 +0000
+Subject: [PATCH 13/13] Automatic translation import
+
+Change-Id: I6c352f8c89929de8e20ac9700a4283bdfac5fd43
+---
+ res/values-ckb/cm_strings.xml | 6 +++---
+ res/values-in/cm_strings.xml  | 2 ++
+ 2 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/res/values-ckb/cm_strings.xml b/res/values-ckb/cm_strings.xml
+index c201b63954b..817822e537c 100644
+--- a/res/values-ckb/cm_strings.xml
++++ b/res/values-ckb/cm_strings.xml
+@@ -22,7 +22,7 @@
+     <string name="backup_transport_setting_label">گۆڕینی دابینکەری Backup</string>
+     <string name="backup_transport_title">دابینکەری Backup هەڵبژێرە</string>
+     <string name="berry_black_theme_title">تەواو ڕەش</string>
+-    <string name="berry_black_theme_summary">پاشبنەمای تەواو ڕەش بۆ ڕوکاری تاریك</string>
++    <string name="berry_black_theme_summary">پاشبنەمای تەواو ڕەش بۆ ڕوکاری تاریک</string>
+     <string name="lineagelicense_title">یاساکانی LineageOS</string>
+     <string name="show_dev_countdown_cm">{count, plural,
+       =1      {تۆ تەنها # هەنگاو دووریت لە چالاککردنی ڕێکخستنەکانی گەشەپێدەر.}
+@@ -63,7 +63,7 @@
+     <string name="fingerprint_enroll_touch_dialog_message_side" product="tablet">دەست بنێ بە هەستەوەرەکەی تەنیشتی تابلێتەکەت.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_side" product="device">دەست بنێ بە هەستەوەرەکەی تەنیشتی ئامێرەکەت.</string>
+     <string name="fingerprint_enroll_touch_dialog_message_side" product="default">دەست بنێ بە هەستەوەرەکەی تەنیشتی مۆبایلەکەت.</string>
+-    <string name="security_settings_require_screen_on_to_auth_with_proximity_description">دەست لە هەستەوەرەکە بدە بۆ کردنەوەی قوفڵ، تەنانەت کاتێک ڕوونما کوژاوەتەوە. هەستەوەری نزیکی (Proximity) ڕێگری دەکات لە کردنەوەی قوفڵی هەڵەکەوت.</string>
++    <string name="security_settings_require_screen_on_to_auth_with_proximity_description">دەست لە هەستەوەرەکە بدە بۆ کردنەوەی قوفڵ، تەنانەت کاتێک ڕوونما کوژاوەتەوە. هەستەوەری نزیکی ڕێگری دەکات لە کردنەوەی قوفڵی هەڵەکەوت.</string>
+     <string name="show_navbar_hint_title">نیشاندەری ڕێدۆزی (Navigation hint)</string>
+     <string name="show_navbar_hint_summary">پیشاندانی شریتی نیشاندەری ڕێدۆزی لە خوارەوەی ڕوونما</string>
+     <string name="auto_brightness_one_shot_title">ڕووناکیی خۆکاری یەکجارەکی</string>
+@@ -101,7 +101,7 @@
+     <string name="battery_health_cold">ساردە</string>
+     <string name="battery_health_unknown">نادیار</string>
+     <string name="battery_temperature">پلەی گەرمی</string>
+-    <string name="battery_voltage">ڤۆڵتیە (Voltage)</string>
++    <string name="battery_voltage">ڤۆڵتیە</string>
+     <string name="battery_charge_counter_summary">%1$d میلی ئەمپێر کاتژمێر (mAh)</string>
+     <string name="battery_design_capacity">توانستی بنەڕەتی</string>
+     <string name="battery_design_capacity_summary">%1$d میلی ئەمپێر کاتژمێر (mAh)</string>
+diff --git a/res/values-in/cm_strings.xml b/res/values-in/cm_strings.xml
+index fe5f8b067b3..370565fd017 100644
+--- a/res/values-in/cm_strings.xml
++++ b/res/values-in/cm_strings.xml
+@@ -34,6 +34,8 @@
+     <string name="heads_up_notifications_enabled_summary">Menampilkan pemberitahuan prioritas dalam jendela kecil yang mengambang</string>
+     <string name="high_touch_sensitivity_title">Kepekaan sentuh tinggi</string>
+     <string name="high_touch_sensitivity_summary">Tingkatkan kepekaan layar sentuh sehingga dapat digunakan saat mengenakan sarung tangan</string>
++    <string name="tethering_allow_vpn_upstreams_title">Gunakan VPN untuk perangkat terhubung</string>
++    <string name="tethering_allow_vpn_upstreams_summary">Ketika perangkat ini menggunakan VPN, semua perangkat yang terhubung ke hotspot akan menggunakan VPN yang sama</string>
+     <string name="lock_settings_picker_pattern_size_message">Pilih ukuran pola</string>
+     <string name="lockpattern_settings_enable_error_path_title">Tunjukkan galat pola</string>
+     <string name="lockpattern_settings_enable_dots_title">Tunjukkan titik-titik pola</string>
+-- 
+2.56.0
+

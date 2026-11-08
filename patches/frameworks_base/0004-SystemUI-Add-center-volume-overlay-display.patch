@@ -1,7 +1,7 @@
-From a469417c98c2c64ef8cad13820ca1d7c110cfa14 Mon Sep 17 00:00:00 2001
+From 95c71bb7d5a991a729ce367c48055176d29a2beb Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 25 Oct 2026 10:31:35 +0900
-Subject: [PATCH] SystemUI: Add center volume overlay display
+Subject: [PATCH 4/4] SystemUI: Add center volume overlay display
 
 Change-Id: I70a898610ea5bdb26e61ee2cb8b7b652dd7ecf1a
 ---
@@ -23,18 +23,18 @@ index 000000000000..ace947951b34
 +    <corners android:radius="16dp" />
 +</shape>
 diff --git a/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java b/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java
-index 7f8d4ee08ff2..4f253ae76cf5 100644
+index 82f07c924d98..c278ffb504ed 100644
 --- a/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java
 +++ b/packages/SystemUI/src/com/android/systemui/volume/VolumeDialogImpl.java
-@@ -62,6 +62,7 @@ import android.content.res.Resources;
- import android.content.res.TypedArray;
- import android.database.ContentObserver;
+@@ -65,6 +65,7 @@ import android.database.ContentObserver;
  import android.graphics.Color;
+ import android.graphics.ColorMatrix;
+ import android.graphics.ColorMatrixColorFilter;
 +import android.graphics.Typeface;
  import android.graphics.Outline;
  import android.graphics.PixelFormat;
  import android.graphics.Rect;
-@@ -225,6 +226,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+@@ -241,6 +242,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
  
      private Window mWindow;
      private CustomDialog mDialog;
@@ -42,7 +42,7 @@ index 7f8d4ee08ff2..4f253ae76cf5 100644
      private ViewGroup mDialogView;
      private ViewGroup mDialogRowsViewContainer;
      private ViewGroup mDialogRowsView;
-@@ -1768,6 +1770,11 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+@@ -1947,6 +1949,11 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
                  row.addTouchListener();
              }
          }
@@ -54,7 +54,7 @@ index 7f8d4ee08ff2..4f253ae76cf5 100644
          Trace.endSection();
      }
  
-@@ -1843,6 +1850,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+@@ -2025,6 +2032,7 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
              return;
          }
          mIsAnimatingDismiss = true;
@@ -62,7 +62,7 @@ index 7f8d4ee08ff2..4f253ae76cf5 100644
          mDialogView.animate().cancel();
          mInteractor.onDialogDismissed();
          if (mShowing) {
-@@ -1892,6 +1900,50 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+@@ -2074,6 +2082,50 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
          Trace.endSection();
      }
  
@@ -113,8 +113,8 @@ index 7f8d4ee08ff2..4f253ae76cf5 100644
      private boolean isTv() {
          return mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK)
                  || mContext.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TELEVISION);
-@@ -2430,6 +2482,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
-         updateVolumeRowSliderH(row, enableSlider, vlevel);
+@@ -2641,6 +2693,9 @@ public class VolumeDialogImpl implements VolumeDialog, Dumpable,
+         updateVolumeRowSliderH(row, enableSlider, vlevel, max != row.slider.getMax());
          Trace.endSection();
          if (row.number != null) row.number.setText(Integer.toString(vlevel));
 +        if (row == getActiveRow() && mShowing) {
@@ -122,7 +122,7 @@ index 7f8d4ee08ff2..4f253ae76cf5 100644
 +        }
      }
  
-     private boolean isStreamMuted(final StreamState streamState) {
+     private void updateAppVolumeRow(VolumeRow row) {
 -- 
 2.56.0
 

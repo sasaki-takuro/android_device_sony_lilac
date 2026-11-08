@@ -1,0 +1,26 @@
+From 9c4967c91ee192ed9aa7e7da9fb539b7f7524702 Mon Sep 17 00:00:00 2001
+From: LineageOS Infra <infra@lineageos.org>
+Date: Tue, 15 Sep 2026 12:01:28 +0000
+Subject: [PATCH 08/13] Automatic translation import
+
+Change-Id: Ifda910150efc06cf89fa6da5790f2f3776ca57d2
+---
+ res/values-az/cm_strings.xml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/res/values-az/cm_strings.xml b/res/values-az/cm_strings.xml
+index d662ef71d4d..711f3179cc5 100644
+--- a/res/values-az/cm_strings.xml
++++ b/res/values-az/cm_strings.xml
+@@ -88,7 +88,7 @@
+     <string name="wake_when_plugged_or_unplugged_summary">Cərəyan mənbəyinə taxarkən və ya çıxararkən bir səs oxut</string>
+     <string name="fast_charging_title">Sürətli doldurma</string>
+     <string name="fast_charging_summary">Doldurma zamanı cihazın istehsal etdiyi istiliyi azaltmaq və ya batareyanın ömrünü uzatmaq üçün sıradan çıxardın</string>
+-    <string name="storage_warning_internal">Xəbərdarlıq: Bu seçim, düzgün işləməyə və ya veri itkisinə səbəb ola bilər, buna görə də tövsiyə edilmir!</string>
++    <string name="storage_warning_internal">Xəbərdarlıq: Bu seçənək, düzgün işləməyə və ya veri itkisinə səbəb ola bilər, buna görə də tövsiyə edilmir!</string>
+     <string name="assisted_gps">Köməkli GPS istifadə edin</string>
+     <string name="assisted_gps_summary">GPS-in başlatma performansını əhəmiyyətli dərəcədə artırmaq üçün internetdən peyk köməkçi verilərini endirin. Fövqəladə hal zəngləri üçün köməkçi GPS-ə həmişə icazə verilir.</string>
+     <string name="battery_technology">Texnologiya</string>
+-- 
+2.56.0
+
