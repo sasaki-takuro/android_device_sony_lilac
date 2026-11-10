@@ -22,7 +22,7 @@ DEVICE_PATH := device/sony/lilac
 PRODUCT_PLATFORM := yoshino
 
 ### BOOTLOADER
-ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm bliss_lilac_dcm,$(TARGET_PRODUCT)),)
     TARGET_BOOTLOADER_BOARD_NAME := SO-02K
     TARGET_OTA_ASSERT_DEVICE := lilac,SO-02K,so-02k,lilac_dcm,lilac_docomo
 else
@@ -31,7 +31,7 @@ else
 endif
 
 ### KERNEL
-ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm bliss_lilac_dcm,$(TARGET_PRODUCT)),)
     TARGET_KERNEL_CONFIG := lineage-msm8998-yoshino-lilac_dcm_defconfig
 else
     TARGET_KERNEL_CONFIG := lineage-msm8998-yoshino-lilac_defconfig
@@ -50,7 +50,7 @@ TARGET_SCREEN_DENSITY := 320
 
 ### PROPS
 # Add device-specific ones
-ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm,$(TARGET_PRODUCT)),)
+ifneq ($(filter lineage_lilac_dcm aicp_lilac_dcm bliss_lilac_dcm,$(TARGET_PRODUCT)),)
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system_dcm.prop
 else
 TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
