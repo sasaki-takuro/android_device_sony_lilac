@@ -85,7 +85,7 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (カスタムROM : 
 ```bash
 mkdir -p ~/aicp15
 cd ~/aicp15
-repo init -u https://github.com/AICP/platform_manifest.git -b aicp-15 --git-lfs
+repo init -u https://github.com/AICP/platform_manifest.git -b v15.0_aicp_clean --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
