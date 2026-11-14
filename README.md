@@ -1,25 +1,25 @@
-# [Unofficial] Sony Xperia XZ1 Compact (SO-02K) を Android 15 化するビルド設定・手順書（LineageOS 22.2 ベース / 国内VoLTE対応）
+# [Unofficial] Sony Xperia XZ1 Compact (SO-02K) を Android 15 化するビルド設定・手順書（BlissRoms 18.7 ベース / 国内VoLTE対応）
 
 ## これは何？
-NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / 非公式・Unofficial)** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に利用可能とするための非公式デバイスツリー・ビルド手順書** です。
+NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (BlissRoms 18.7 / 非公式・Unofficial)** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に利用可能とするための非公式デバイスツリー・ビルド手順書** です。
 
-* **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
-* **ベースOS**: LineageOS 22.2（Android 15）
-* **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持、SO-02K 固有プロパティ群（`ro.semc.*` 等）の完全復元
+- **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
+- **ベースOS**: BlissRoms 18.7（`v18.7-stable-voyager` / Android 15）
+- **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持、SO-02K 固有プロパティ群（`ro.semc.*` 等）の完全復元
 
 ---
 
 ## 免責事項（Disclaimer / 注意事項）
-* **完全自己責任**: 本リポジトリに記載されている手順・設定・パッチの利用によって生じたいかなる損害（端末の文鎮化、通信不能、データ消失、ハードウェア破損等）についても、作成者は一切の責任を負いません。
-* **動作の保証外**: 記載内容はあくまで**作成者の個人環境（SO-02K 実機）において動作を確認した記録**です。当時の作業メモや検証結果に基づき整理していますが、記憶違いや見落とし、環境の違い等が含まれる可能性があります。作業を行う際は必ず事前に完全なバックアップ（TA、モデム領域等）を取得し、自身の判断で実施してください。
+- **完全自己責任**: 本リポジトリに記載されている手順・設定・パッチの利用によって生じたいかなる損害（端末の文鎮化、通信不能、データ消失、ハードウェア破損等）についても、作成者は一切の責任を負いません。
+- **動作の保証外**: 記載内容はあくまで**作成者の個人環境（SO-02K 実機）において動作を確認した記録**です。当時の作業メモや検証結果に基づき整理していますが、記憶違いや見落とし、環境の違い等が含まれる可能性があります。作業を行う際は必ず事前に完全なバックアップ（TA、モデム領域等）を取得し、自身の判断で実施してください。
 
 ---
 
 ## 対象端末と動作前提条件
 
 ### 1. 対象ハードウェア
-* **NTTドコモ SO-02K のみ** を対象としています。
-* `/oem` パーティションは使用しません。Sony 公式の SODP OEM バイナリのフラッシュは不要です（必要なバイナリは全てベンダーツリーに含まれます）。
+- **NTTドコモ SO-02K のみ** を対象としています。
+- `/oem` パーティションは使用しません。Sony 公式の SODP OEM バイナリのフラッシュは不要です（必要なバイナリは全てベンダーツリーに含まれます）。
 
 ### 2. モデム・通信周りの検証メモと動作確認条件
 - **ベースファームウェア**: `SO-02K_47.1.F.1.105_1311-8845_R14B`（初期 Oreo）
@@ -47,7 +47,7 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / �
   * ドコモ純正 Pie（`47.2.B.5.38` / ベースバンド `8998-8998.gen.prodQ-00278-47`）の下層ファームウェア環境でも、ROM側の修正なしに同様に動作（LTE通信・VoLTE通話・Wi-Fi・BT・Camera・NFC）することを確認済み。
 
 ### 3. ブートローダーとアンロック状態
-* **アンロック状態**:
+- **アンロック状態**:
   * ブートローダーアンロック（BLU）済みであること。
     ```bash
     $ fastboot getvar unlocked
@@ -56,9 +56,9 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / �
   * Android 起動時のプロパティ値:
     * `ro.boot.flash.locked`: `0`
     * `ro.boot.verifiedbootstate`: `orange`
-* **プロダクト判定とアサート正規化**:
+- **プロダクト判定とアサート正規化**:
   * グローバル共通ツリーに引きずられた `G8441` の誤認を排除するため、`TARGET_BOOTLOADER_BOARD_NAME := lilac` に正規化し、インストールアサート対象を `SO-02K`, `lilac`, `lilac_dcm` に統一しています。
-* **起動時警告画面の描画乱れ対策（xfl 書き戻し）**:
+- **起動時警告画面の描画乱れ対策（xfl 書き戻し）**:
   * アンロック作業時に流し込んだ改変イメージ（`xfl-o77.mbn` 等）をそのまま残していると、起動時のアンロック警告（鍵アイコン）の表示が化けて乱れます。アンロック完了後はバックアップしておいた元の純正 `xfl` を書き戻す必要があります。
 
 ---
@@ -70,8 +70,9 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / �
    * `ro.semc.version.*`、`ro.semc.product.*`、`ro.somc.*` などの実機パラメータを正確に投入。
 2. **SELinux ポリシーの修正（yoshino-common 側）**:
    * `vendor_init.te` を改修し、`/vendor/build.prop` からのプロパティ読み込み時に `semc_version_prop`、`semc_product_prop`、`somc_oem_prop` への `set_prop` 権限を付与して拒否（denial）を解消。
+   * `vold_prepare_subdirs.te` に `sys_admin` 権限を追加し、ユーザーデータサブディレクトリ作成時の権限拒否を解消。
 3. **アサートおよびターゲット名正規化**:
-   * 機種判定から `G8441` を排除し、`SO-02K` 向けターゲットとして統一。
+   * 機種判定から `G8441` を排除し、`SO-02K` 向けターゲット（`bliss_lilac_dcm`）として統一。
 4. **モデム書き換え機能・サービスのオミット**:
    * 不意のベースバンド書き換えや競合を防ぐため、`sony-modem-switcher` サービスの自動起動停止および `OpenCustomizationSelector`（モデム切り替え機能）をオミット・無効化。
 5. **KernelSU（KernelSU Next）のデフォルト非搭載**:
@@ -79,20 +80,20 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / �
 
 ---
 
-## LineageOS 22.2 ビルド再現手順
+## BlissRoms 18.7 ビルド再現手順
 
 ### 1. ワークスペースの初期化
 ```bash
-mkdir -p ~/lineage-22.2
-cd ~/lineage-22.2
-repo init -u https://github.com/LineageOS/android.git -b lineage-22.2 --git-lfs
+mkdir -p ~/bliss15
+cd ~/bliss15
+repo init -u https://github.com/BlissRoms/stable_releases.git -b v18.7-stable-voyager --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
 本リポジトリに含まれる再現用マニフェストを取得して配置します。
 ```bash
 mkdir -p .repo/local_manifests
-curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/lineage-22.2-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
+curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/bliss-15-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
 ```
 
 ### 3. ソースコードの同期
@@ -101,7 +102,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 9 個の必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 12 個の必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -121,32 +122,42 @@ git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_o
 # packages/modules/Wifi
 git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
 
+# system/core
+git -C system/core am ${PWD}/device/sony/lilac/patches/system_core/*.patch
 ```
 
 ### 5. ビルド実行
+Vanilla ビルド（GApps なし）を生成する手順は以下の通りです。
 ```bash
 source build/envsetup.sh
-lunch lineage_lilac_dcm-bp1a-userdebug
-m bacon
+lunch bliss_lilac_dcm-bp1a-userdebug
+m blissify
 ```
+
+※ `blissify` ラッパーコマンドを使用する場合は `blissify -v lilac_dcm` でも同等の Vanilla ビルドを実行できます。
 
 ---
 
 ## 適用パッチ一覧（概要）
-* **`build_make`**: `avb_avb` が存在しない環境で `avbtool` へフォールバックさせる修正。
-* **`build_soong`**: Soong 定義イメージを使用しない場合に `fsgen` の内部モジュール生成をスキップする修正。
+- **`build_make`**:
+  * `avb_avbtool` が存在しない環境で `avbtool` へフォールバックさせる修正。
+- **`build_soong`**:
+  * Soong 定義イメージを使用しない場合に `fsgen` の内部モジュール生成をスキップする修正。
+  * `gen_build_prop.py` による `ro.bliss.device` プロパティ出力を抑止する修正。
 - **`frameworks_base`**:
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
   * SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
+  * `Start dispatching broadcast to app when it's really ready` コミットのリバート（ブロードキャスト配送の待機デッドロックによる起動ループ回避）。
 - **`frameworks_native`**:
   * `SurfaceFlinger` の `captureScreenshot` における `RenderArea` 参照の解放後使用（Use-After-Free）を修正。
-* **`frameworks_opt_telephony`**:
+- **`frameworks_opt_telephony`**:
   * シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   * レガシー HAL との互換性維持のための `RadioState` マッピング修正。
 - **`packages_modules_Wifi`**:
   * レガシー Wi-Fi チップセット非対応による `getCachedScanData failed (code 4)` の頻回なログ出力を抑止。
-
+- **`system_core`**:
+  * `init` における `SPOOF_SAFETYNET` を無効化（`-DSPOOF_SAFETYNET=0`）し、ブートローダー状態プロパティの改変を防止。
 
 ---
 
@@ -156,11 +167,13 @@ m bacon
 
 Special thanks to all the upstream developers and communities whose dedicated work made this project possible:
 
-* **[LineageOS Project](https://github.com/LineageOS)**
+- **[BlissRoms Project](https://github.com/BlissRoms)**
+  * カスタマイズ性に優れた Android 15 ベース ROM 本体の提供 / Providing the feature-rich Android 15 ROM base
+- **[LineageOS Project](https://github.com/LineageOS)**
   * Android オープンソースカスタムROMの強固な基盤システムの提供 / Providing the solid foundation of the open-source Android platform
-* **[AICP (Android Ice Cold Project)](https://github.com/AICP)**
-  * カスタマイズ性に優れた ROM 本体の提供 / Providing a highly customizable and clean ROM
-* **[justinlin099 (Justin Lin)](https://github.com/justinlin099) 氏**
+- **[AICP (Android Ice Cold Project)](https://github.com/AICP)**
+  * カスタマイズ機能および各種パッチの提供 / Providing customization features and patches
+- **[justinlin099 (Justin Lin)](https://github.com/justinlin099) 氏**
   * Xperia XZ1 Compact (Lilac / SO-02K) 向けデバイスツリーの構築・メンテナンスおよび成果の公開 / Maintaining and sharing device trees for Xperia XZ1 Compact (Lilac / SO-02K)
-* **Sony Open Devices プロジェクトおよび Xperia 開発コミュニティの皆様**
+- **Sony Open Devices プロジェクトおよび Xperia 開発コミュニティの皆様**
   * Sony Open Devices Project and the Xperia development community

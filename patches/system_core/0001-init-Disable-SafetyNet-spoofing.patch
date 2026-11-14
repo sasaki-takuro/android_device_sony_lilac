@@ -1,0 +1,35 @@
+From 4b41fc809cf661d398bd4167fceee365c3dbc3ef Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sat, 14 Nov 2026 10:58:57 +0900
+Subject: [PATCH] init: Disable SafetyNet spoofing
+
+Change-Id: I795ea855b54cc16354fa6957e1d833b64e645b7f
+---
+ init/Android.bp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/init/Android.bp b/init/Android.bp
+index 1fd67bb3f..374ba2b1a 100644
+--- a/init/Android.bp
++++ b/init/Android.bp
+@@ -116,7 +116,7 @@ libinit_cc_defaults {
+         "-DREBOOT_BOOTLOADER_ON_PANIC=0",
+         "-DSHUTDOWN_ZERO_TIMEOUT=0",
+         "-DWORLD_WRITABLE_KMSG=0",
+-        "-DSPOOF_SAFETYNET=1",
++        "-DSPOOF_SAFETYNET=0",
+         "-Wall",
+         "-Werror",
+         "-Wextra",
+@@ -418,7 +418,7 @@ init_first_stage_cc_defaults {
+         "-DSHUTDOWN_ZERO_TIMEOUT=0",
+         "-DLOG_UEVENTS=0",
+         "-DSEPOLICY_VERSION=30", // TODO(jiyong): externalize the version number
+-        "-DSPOOF_SAFETYNET=1",
++        "-DSPOOF_SAFETYNET=0",
+     ],
+ 
+     product_variables: {
+-- 
+2.56.1
+

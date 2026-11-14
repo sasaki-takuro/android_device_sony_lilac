@@ -1,0 +1,26 @@
+From d4c0b2625d2ae4524a28aeb271bf7f0783009c97 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sat, 14 Nov 2026 10:58:57 +0900
+Subject: [PATCH] gen_build_prop: Do not set ro.bliss.device
+
+Change-Id: Ie7cd26a1e0c7bb8a40504b3c026c6713d3ac75fd
+---
+ scripts/gen_build_prop.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/scripts/gen_build_prop.py b/scripts/gen_build_prop.py
+index f27371669..bd146d10c 100644
+--- a/scripts/gen_build_prop.py
++++ b/scripts/gen_build_prop.py
+@@ -251,7 +251,7 @@ def generate_build_info(args):
+   # flavor (via a dedicated lunch config for example).
+   print(f"ro.build.flavor={config['BuildFlavor']}")
+ 
+-  print(f"ro.bliss.device={config['BlissDevice']}")
++  # print(f"ro.bliss.device={config['BlissDevice']}")
+ 
+   print(f"persist.sys.pihooks_FINGERPRINT={config['PihooksGmsFp']}")
+   print(f"persist.sys.pihooks_MODEL={config['PihooksGmsModel']}")
+-- 
+2.56.1
+
