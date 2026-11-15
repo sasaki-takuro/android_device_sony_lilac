@@ -71,6 +71,3 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     device/sony/lilac/fonts/fonts_customization.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/fonts_customization.xml
 
-# Debug: Early boot logcat to /cache/boot_logs
-PRODUCT_COPY_FILES += \
-    $(DEVICE_PATH)/logcat_cache.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/logcat_cache.rc
