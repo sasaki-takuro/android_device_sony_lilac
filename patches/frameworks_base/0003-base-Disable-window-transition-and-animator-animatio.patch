@@ -1,17 +1,17 @@
-From f9b515085da364de6676ff353133be1453548d83 Mon Sep 17 00:00:00 2001
+From 8c4a579fe2f0d5932ab6c15b91764a96273d8706 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
-Date: Sat, 10 Oct 2026 04:15:53 +0900
-Subject: [PATCH 2/2] base: Disable window, transition, and animator animations
+Date: Sun, 15 Nov 2026 11:09:07 +0900
+Subject: [PATCH 3/4] base: Disable window, transition, and animator animations
  by default
 
-Change-Id: Ia886266dd8ca7a2a78917244afbc81b43a4f3098
+Change-Id: Ic806e0d2efde012a55a632f5f1ce5bd35f231180
 ---
- packages/SettingsProvider/res/values/defaults.xml           | 4 ++--
- .../java/com/android/server/wm/WindowManagerService.java    | 6 +++---
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ packages/SettingsProvider/res/values/defaults.xml             | 4 ++--
+ .../core/java/com/android/server/wm/WindowManagerService.java | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/packages/SettingsProvider/res/values/defaults.xml b/packages/SettingsProvider/res/values/defaults.xml
-index 5ddf005d9468..6d8e2573b3d7 100644
+index ce8de5e8d..c6dd6665c 100644
 --- a/packages/SettingsProvider/res/values/defaults.xml
 +++ b/packages/SettingsProvider/res/values/defaults.xml
 @@ -34,8 +34,8 @@
@@ -26,22 +26,18 @@ index 5ddf005d9468..6d8e2573b3d7 100644
  
      <bool name="def_bluetooth_on">true</bool>
 diff --git a/services/core/java/com/android/server/wm/WindowManagerService.java b/services/core/java/com/android/server/wm/WindowManagerService.java
-index 87493dd2cfc8..49add9387468 100644
+index 65a4a62be..7d79db633 100644
 --- a/services/core/java/com/android/server/wm/WindowManagerService.java
 +++ b/services/core/java/com/android/server/wm/WindowManagerService.java
-@@ -1046,9 +1046,9 @@ public class WindowManagerService extends IWindowManager.Stub
-     PowerManager mPowerManager;
-     PowerManagerInternal mPowerManagerInternal;
+@@ -1111,7 +1111,7 @@ public class WindowManagerService extends IWindowManager.Stub
+         }
+     }
  
--    private float mWindowAnimationScaleSetting = 1.0f;
--    private float mTransitionAnimationScaleSetting = 1.0f;
--    private float mAnimatorDurationScaleSetting = 1.0f;
-+    private float mWindowAnimationScaleSetting = 0.0f;
-+    private float mTransitionAnimationScaleSetting = 0.0f;
-+    private float mAnimatorDurationScaleSetting = 0.0f;
-     private boolean mAnimationsDisabled = false;
-     boolean mPointerLocationEnabled = false;
+-    private static final float DEFAULT_ANIMATION_SCALE = 1.0f;
++    private static final float DEFAULT_ANIMATION_SCALE = 0.0f;
  
+     @GuardedBy("mGlobalLock")
+     private float mWindowAnimationScaleSetting = DEFAULT_ANIMATION_SCALE;
 -- 
-2.56.0
+2.56.1
 

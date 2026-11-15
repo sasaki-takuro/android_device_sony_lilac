@@ -1,0 +1,26 @@
+From 91c888df1c9034a5b9f89371ac934601262b383f Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sun, 15 Nov 2026 09:26:00 +0900
+Subject: [PATCH] media: Define soong_namespace importing yoshino-common
+ qcom-caf
+
+Change-Id: I80731f3e4a4d6de41d6e4e2760575a4e9f7e992d
+---
+ Android.bp | 5 +++++
+ 1 file changed, 5 insertions(+)
+ create mode 100644 Android.bp
+
+diff --git a/Android.bp b/Android.bp
+new file mode 100644
+index 0000000..21c6c59
+--- /dev/null
++++ b/Android.bp
+@@ -0,0 +1,5 @@
++soong_namespace {
++    imports: [
++        "device/sony/yoshino-common/hardware/qcom-caf",
++    ],
++}
+-- 
+2.56.1
+

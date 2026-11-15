@@ -1,4 +1,4 @@
-From 70f0ad86b78de1f7231191115f1c3d61b0493a2e Mon Sep 17 00:00:00 2001
+From d2a8c26c4d72007d7513f305a3968709efe0058b Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 27 Sep 2026 16:49:21 +0900
 Subject: [PATCH 2/2] telephony: Correct RadioState mapping for both HAL 1.0
@@ -10,10 +10,10 @@ Change-Id: I360b993bcde469dc89b0c2e318e7ce2d738ff407
  1 file changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/src/java/com/android/internal/telephony/RadioIndication.java b/src/java/com/android/internal/telephony/RadioIndication.java
-index aadfe62499..4d348457f7 100644
+index 32782dc..a6ce976 100644
 --- a/src/java/com/android/internal/telephony/RadioIndication.java
 +++ b/src/java/com/android/internal/telephony/RadioIndication.java
-@@ -138,7 +138,28 @@ public class RadioIndication extends IRadioIndication.Stub {
+@@ -125,7 +125,28 @@ public class RadioIndication extends IRadioIndication.Stub {
      public void radioStateChanged(int indicationType, int radioState) {
          mRil.processIndication(HAL_SERVICE_RADIO, indicationType);
  
@@ -44,5 +44,5 @@ index aadfe62499..4d348457f7 100644
              mRil.unsljLogMore(
                      RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED, "radioStateChanged: " + state);
 -- 
-2.55.0
+2.56.1
 

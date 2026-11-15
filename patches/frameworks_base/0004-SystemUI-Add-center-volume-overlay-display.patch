@@ -1,0 +1,187 @@
+From b7814fb52f75ca96bf79a92f4697667cda262b0c Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sun, 15 Nov 2026 11:50:53 +0900
+Subject: [PATCH 4/4] SystemUI: Add center volume overlay display
+
+Change-Id: I8a969b38b3633bd3df8e1558be828691816da04a
+---
+ .../res/drawable/volume_center_bg.xml         |  6 ++
+ .../ui/binder/VolumeDialogViewBinder.kt       | 82 ++++++++++++++++++-
+ .../ui/viewmodel/VolumeDialogViewModel.kt     | 10 +++
+ 3 files changed, 94 insertions(+), 4 deletions(-)
+ create mode 100644 packages/SystemUI/res/drawable/volume_center_bg.xml
+
+diff --git a/packages/SystemUI/res/drawable/volume_center_bg.xml b/packages/SystemUI/res/drawable/volume_center_bg.xml
+new file mode 100644
+index 000000000..ace947951
+--- /dev/null
++++ b/packages/SystemUI/res/drawable/volume_center_bg.xml
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<shape xmlns:android="http://schemas.android.com/apk/res/android"
++    android:shape="rectangle">
++    <solid android:color="#B3000000" />
++    <corners android:radius="16dp" />
++</shape>
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt
+index 5f3529523..eae5f29c9 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt
+@@ -18,12 +18,16 @@ package com.android.systemui.volume.dialog.ui.binder
+ 
+ import android.app.Dialog
+ import android.content.Context
++import android.graphics.PixelFormat
++import android.media.AudioManager
+ import android.view.Gravity
+ import android.view.MotionEvent
+ import android.view.View
+ import android.view.ViewGroup
+ import android.view.WindowInsets
++import android.view.WindowManager
+ import android.view.accessibility.AccessibilityEvent
++import android.widget.TextView
+ import androidx.compose.ui.util.lerp
+ import androidx.core.view.updatePadding
+ import androidx.dynamicanimation.animation.DynamicAnimation
+@@ -70,7 +74,7 @@ private const val ANIMATION_MINIMUM_VISIBLE_CHANGE = 0.01f
+ class VolumeDialogViewBinder
+ @Inject
+ constructor(
+-    @Application context: Context,
++    @Application private val appContext: Context,
+     private val viewModel: VolumeDialogViewModel,
+     private val captionsButtonViewModel: VolumeDialogCaptionsButtonViewModel,
+     private val jankListenerFactory: JankListenerFactory,
+@@ -79,13 +83,13 @@ constructor(
+ ) {
+ 
+     private val halfOpenedOffsetPx: Float =
+-        context.resources.getDimensionPixelSize(R.dimen.volume_dialog_half_opened_offset).toFloat()
++        appContext.resources.getDimensionPixelSize(R.dimen.volume_dialog_half_opened_offset).toFloat()
+     private val mainSliderVerticalMargin: Int by lazy {
+-        context.resources.getDimensionPixelSize(R.dimen.volume_dialog_slider_vertical_margin)
++        appContext.resources.getDimensionPixelSize(R.dimen.volume_dialog_slider_vertical_margin)
+     }
+ 
+     private val mainSliderWithCaptionsToggleVerticalMargin: Int by lazy {
+-        context.resources.getDimensionPixelSize(
++        appContext.resources.getDimensionPixelSize(
+             R.dimen.volume_dialog_slider_vertical_margin_with_captions_toggle
+         )
+     }
+@@ -103,6 +107,7 @@ constructor(
+             true
+         }
+         animateVisibility(root, dialog, viewModel.dialogVisibilityModel)
++        bindCenterVolumeOverlay()
+ 
+         viewModel.dialogTitle
+             .filter { it.isNotEmpty() }
+@@ -249,6 +254,75 @@ constructor(
+             mainSliderVerticalMargin
+         }
+ 
++
++    private fun CoroutineScope.bindCenterVolumeOverlay() {
++        val windowManager = appContext.getSystemService(WindowManager::class.java) ?: return
++        var overlayView: View? = null
++        var overlayText: TextView? = null
++
++        fun hideOverlay() {
++            overlayView?.let { view ->
++                if (view.parent != null) {
++                    runCatching { windowManager.removeViewImmediate(view) }
++                }
++            }
++            overlayView = null
++            overlayText = null
++        }
++
++        fun showOrUpdateOverlay(level: Int, min: Int, max: Int) {
++            val textView = overlayText ?: TextView(appContext).apply {
++                setBackgroundResource(R.drawable.volume_center_bg)
++                setTextColor(android.graphics.Color.WHITE)
++                textSize = 22f
++                typeface = android.graphics.Typeface.DEFAULT_BOLD
++                val padH = (24 * appContext.resources.displayMetrics.density).toInt()
++                val padV = (14 * appContext.resources.displayMetrics.density).toInt()
++                setPadding(padH, padV, padH, padV)
++                gravity = Gravity.CENTER
++            }.also { created ->
++                val lp = WindowManager.LayoutParams(
++                    WindowManager.LayoutParams.WRAP_CONTENT,
++                    WindowManager.LayoutParams.WRAP_CONTENT,
++                    WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY,
++                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
++                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE or
++                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
++                    PixelFormat.TRANSLUCENT,
++                ).apply {
++                    gravity = Gravity.CENTER
++                    title = "VolumeCenterOverlay"
++                }
++                windowManager.addView(created, lp)
++                overlayView = created
++                overlayText = created
++            }
++            val pct = if (max > min) ((level - min) * 100) / (max - min) else 0
++            textView.text = "$level / $max ($pct%)"
++            textView.visibility = View.VISIBLE
++        }
++
++        launchTraced("VDVB#centerVolumeOverlay") {
++            try {
++                kotlinx.coroutines.flow.combine(
++                    viewModel.dialogVisibilityModel,
++                    viewModel.activeStreamModel,
++                ) { visibility, streamModel -> visibility to streamModel }
++                    .collect { (visibility, streamModel) ->
++                        if (visibility is VolumeDialogVisibilityModel.Visible && streamModel != null) {
++                            val isRing = streamModel.stream == AudioManager.STREAM_RING
++                            val effectiveLevel = if (streamModel.muted && !isRing) 0 else streamModel.level
++                            showOrUpdateOverlay(effectiveLevel, streamModel.levelMin, streamModel.levelMax)
++                        } else {
++                            hideOverlay()
++                        }
++                    }
++            } finally {
++                hideOverlay()
++            }
++        }
++    }
++
+     private class Accessibility(private val viewModel: VolumeDialogViewModel) :
+         View.AccessibilityDelegate() {
+ 
+diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt
+index 2d8674b0d..bfbd7c499 100644
+--- a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt
++++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt
+@@ -32,6 +32,7 @@ import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope
+ import com.android.systemui.volume.dialog.domain.interactor.VolumeDialogStateInteractor
+ import com.android.systemui.volume.dialog.domain.interactor.VolumeDialogVisibilityInteractor
+ import com.android.systemui.volume.dialog.shared.model.VolumeDialogStateModel
++import com.android.systemui.volume.dialog.shared.model.VolumeDialogStreamModel
+ import com.android.systemui.volume.dialog.shared.model.VolumeDialogVisibilityModel
+ import com.android.systemui.volume.dialog.shared.model.streamLabel
+ import com.android.systemui.volume.dialog.sliders.domain.interactor.VolumeDialogSlidersInteractor
+@@ -72,6 +73,15 @@ constructor(
+         }
+     val dialogVisibilityModel: Flow<VolumeDialogVisibilityModel> =
+         dialogVisibilityInteractor.dialogVisibility
++    val activeStreamModel: StateFlow<VolumeDialogStreamModel?> =
++        combine(
++                volumeDialogStateInteractor.volumeDialogState,
++                volumeDialogSlidersInteractor.sliders.map { it.slider },
++            ) { state: VolumeDialogStateModel, sliderType: VolumeDialogSliderType ->
++                state.streamModels[sliderType.audioStream]
++            }
++            .stateIn(coroutineScope, SharingStarted.Eagerly, null)
++
+     val dialogTitle: StateFlow<String> =
+         combine(
+                 volumeDialogStateInteractor.volumeDialogState,
+-- 
+2.56.1
+

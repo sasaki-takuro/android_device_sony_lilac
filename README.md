@@ -1,10 +1,10 @@
-# [Unofficial] Sony Xperia XZ1 Compact (SO-02K) を Android 15 化するビルド設定・手順書（LineageOS 22.2 ベース / 国内VoLTE対応）
+# [Unofficial] Sony Xperia XZ1 Compact (SO-02K) を Android 16 化するビルド設定・手順書（LineageOS 23.2 ベース / 国内VoLTE対応）
 
 ## これは何？
-NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / 非公式・Unofficial)** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に利用可能とするための非公式デバイスツリー・ビルド手順書** です。
+NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (LineageOS 23.2 / 非公式・Unofficial)** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に利用可能とするための非公式デバイスツリー・ビルド手順書** です。
 
 * **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
-* **ベースOS**: LineageOS 22.2（Android 15）
+* **ベースOS**: LineageOS 23.2（Android 16）
 * **主な特徴**: ドコモ回線・au回線での国内 VoLTE 通話およびデータ通信の動作を維持、SO-02K 固有プロパティ群（`ro.semc.*` 等）の完全復元
 
 ---
@@ -79,20 +79,20 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 15 (LineageOS 22.2 / �
 
 ---
 
-## LineageOS 22.2 ビルド再現手順
+## LineageOS 23.2 ビルド再現手順
 
 ### 1. ワークスペースの初期化
 ```bash
-mkdir -p ~/lineage-22.2
-cd ~/lineage-22.2
-repo init -u https://github.com/LineageOS/android.git -b lineage-22.2 --git-lfs
+mkdir -p ~/lineage-23.2
+cd ~/lineage-23.2
+repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
 本リポジトリに含まれる再現用マニフェストを取得して配置します。
 ```bash
 mkdir -p .repo/local_manifests
-curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/lineage-22.2-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
+curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/lineage-23.2-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
 ```
 
 ### 3. ソースコードの同期
@@ -101,7 +101,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 9 個の必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 13 個の必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -112,41 +112,47 @@ git -C build/soong am ${PWD}/device/sony/lilac/patches/build_soong/*.patch
 # frameworks/base
 git -C frameworks/base am ${PWD}/device/sony/lilac/patches/frameworks_base/*.patch
 
-# frameworks/native
-git -C frameworks/native am ${PWD}/device/sony/lilac/patches/frameworks_native/*.patch
-
 # frameworks/opt/telephony
 git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_opt_telephony/*.patch
 
+# hardware/qcom-caf/msm8998/media
+git -C hardware/qcom-caf/msm8998/media am ${PWD}/device/sony/lilac/patches/hardware_qcom-caf_msm8998_media/*.patch
+
+# packages/modules/Connectivity
+git -C packages/modules/Connectivity am ${PWD}/device/sony/lilac/patches/packages_modules_Connectivity/*.patch
+
 # packages/modules/Wifi
 git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
-
 ```
 
 ### 5. ビルド実行
 ```bash
 source build/envsetup.sh
-lunch lineage_lilac_dcm-bp1a-userdebug
+lunch lineage_lilac_dcm-bp4a-userdebug
 m bacon
 ```
 
 ---
 
 ## 適用パッチ一覧（概要）
-* **`build_make`**: `avb_avb` が存在しない環境で `avbtool` へフォールバックさせる修正。
+* **`build_make`**: `avb_avbtool` が存在しない環境で `avbtool` へフォールバックさせる修正。
 * **`build_soong`**: Soong 定義イメージを使用しない場合に `fsgen` の内部モジュール生成をスキップする修正。
-- **`frameworks_base`**:
+* **`frameworks_base`**:
+  * 新規ストレージ利用不可時に proto フラグストレージへフォールバックする `AconfigFlags` 修正。
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
   * SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
-- **`frameworks_native`**:
-  * `SurfaceFlinger` の `captureScreenshot` における `RenderArea` 参照の解放後使用（Use-After-Free）を修正。
 * **`frameworks_opt_telephony`**:
   * シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
-  * レガシー HAL との互換性維持のための `RadioState` マッピング修正。
-- **`packages_modules_Wifi`**:
-  * レガシー Wi-Fi チップセット非対応による `getCachedScanData failed (code 4)` の頻回なログ出力を抑止。
-
+  * レガシー HAL（HAL 1.0 / 1.4+）との互換性維持のための `RadioState` マッピング修正。
+* **`hardware_qcom-caf_msm8998_media`**:
+  * `yoshino-common` の `qcom-caf` 名前空間をインポートする `soong_namespace` 定義を追加。
+* **`packages_modules_Connectivity`**:
+  * レガシー Linux 4.4 カーネル向けに BPF の 4.14+ バージョンチェックをバイパス。
+  * `dump()` 内の `sLocalNetAccessMap` に対する null チェックを修正。
+  * レガシー環境で存在しない `local_net` BPF マップを安全にスキップする修正。
+* **`packages_modules_Wifi`**:
+  * レガシー Wi-Fi チップセット非対応による `getCachedScanData` の `ERROR_NOT_SUPPORTED` ログ出力を抑止。
 
 ---
 
@@ -158,9 +164,15 @@ Special thanks to all the upstream developers and communities whose dedicated wo
 
 * **[LineageOS Project](https://github.com/LineageOS)**
   * Android オープンソースカスタムROMの強固な基盤システムの提供 / Providing the solid foundation of the open-source Android platform
+* **[LineageOS-UL](https://github.com/LineageOS-UL)**
+  * レガシーデバイス向け LineageOS ツリーおよび互換基盤の維持 / Maintaining LineageOS trees and compatibility layers for legacy devices
 * **[AICP (Android Ice Cold Project)](https://github.com/AICP)**
   * カスタマイズ性に優れた ROM 本体の提供 / Providing a highly customizable and clean ROM
+* **[sunplex07](https://github.com/sunplex07) 氏**
+  * Sony Yoshino プラットフォーム（msm8998 / Lilac）向け LineageOS 23.2（Android 16）カーネル・デバイス・ベンダーツリーの移植およびメンテナンス / Porting and maintaining LineageOS 23.2 (Android 16) kernel, device, and vendor trees for Sony Yoshino (msm8998 / Lilac)
+* **[derfelot](https://github.com/derfelot) 氏**
+  * Sony Yoshino プラットフォーム向けベンダーブロブおよびプロプライエタリ構成のメンテナンス / Maintaining vendor blobs and proprietary configurations for the Sony Yoshino platform
 * **[justinlin099 (Justin Lin)](https://github.com/justinlin099) 氏**
-  * Xperia XZ1 Compact (Lilac / SO-02K) 向けデバイスツリーの構築・メンテナンスおよび成果の公開 / Maintaining and sharing device trees for Xperia XZ1 Compact (Lilac / SO-02K)
+  * Xperia XZ1 Compact (Lilac / SO-02K) 向けデバイスツリー・ベンダーブロブの構築および成果の公開 / Maintaining and sharing device trees and vendor blobs for Xperia XZ1 Compact (Lilac / SO-02K)
 * **Sony Open Devices プロジェクトおよび Xperia 開発コミュニティの皆様**
   * Sony Open Devices Project and the Xperia development community

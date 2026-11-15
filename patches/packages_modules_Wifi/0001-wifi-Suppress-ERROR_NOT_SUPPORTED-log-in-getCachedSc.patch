@@ -1,4 +1,4 @@
-From 18b6bcc13480fb1da0f74322ee595b5b4208d6c4 Mon Sep 17 00:00:00 2001
+From f19894b24531661ec4ca9fd00d920ded44a49fa4 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Mon, 12 Oct 2026 06:26:26 +0900
 Subject: [PATCH] wifi: Suppress ERROR_NOT_SUPPORTED log in getCachedScanData
@@ -9,10 +9,10 @@ Change-Id: Iba149e489cdc21d77fe9f25c023903923fe16858
  1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/service/java/com/android/server/wifi/hal/WifiStaIfaceAidlImpl.java b/service/java/com/android/server/wifi/hal/WifiStaIfaceAidlImpl.java
-index 583c63709d..b025b1c1c2 100644
+index 4a6c0c3..b0bb51d 100644
 --- a/service/java/com/android/server/wifi/hal/WifiStaIfaceAidlImpl.java
 +++ b/service/java/com/android/server/wifi/hal/WifiStaIfaceAidlImpl.java
-@@ -400,7 +400,9 @@ public class WifiStaIfaceAidlImpl implements IWifiStaIface {
+@@ -460,7 +460,9 @@ public class WifiStaIfaceAidlImpl implements IWifiStaIface {
              } catch (RemoteException e) {
                  handleRemoteException(e, methodStr);
              } catch (ServiceSpecificException e) {
@@ -24,5 +24,5 @@ index 583c63709d..b025b1c1c2 100644
              return null;
          }
 -- 
-2.56.0
+2.56.1
 
