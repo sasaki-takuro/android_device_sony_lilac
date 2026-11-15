@@ -25,3 +25,8 @@ ro.semc.product.device=G84
 
 # 告訴 SurfaceFlinger 不要依賴 ConfigStore (如果支援的話)
 android.hardware.configstore.1.0-service=0
+
+# Graphics & HWUI / UBWC settings for legacy GPU
+debug.gralloc.enable_fb_ubwc=0
+debug.hwui.renderer=skiagl
+debug.renderengine.backend=skiagl
