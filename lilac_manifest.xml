@@ -12,5 +12,5 @@
 
   <!-- Vendor Blobs -->
   <project name="sasaki-takuro/android_vendor_sony_yoshino-common" path="vendor/sony/yoshino-common" remote="github-sony" revision="lineage-23.2-dcm" />
-  <project name="justinlin099/android_vendor_sony_lilac" path="vendor/sony/lilac" remote="github-sony" revision="lineage-22.2" />
+  <project name="sasaki-takuro/android_vendor_sony_lilac" path="vendor/sony/lilac" remote="github-sony" revision="lineage-23.2-dcm" />
 </manifest>
