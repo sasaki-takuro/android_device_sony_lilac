@@ -15,6 +15,10 @@ TARGET_SCREEN_WIDTH := 720
 # vendor/lineage/config/common.mk
 TARGET_BOOTANIMATION_HALF_RES := true
 
+### PROJECT SAKURA FLAGS
+TARGET_SUPPORTS_BLUR := false
+TARGET_FACE_UNLOCK_SUPPORTED := false
+
 ### LINEAGE
 $(call inherit-product, vendor/lineage/config/common_full_phone.mk)
 
