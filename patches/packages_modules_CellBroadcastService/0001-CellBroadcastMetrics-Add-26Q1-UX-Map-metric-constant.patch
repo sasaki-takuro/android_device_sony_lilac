@@ -1,0 +1,38 @@
+From 90cf4ef5fb0083415f7b825cc682fc6d9f0f32c3 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Thu, 19 Nov 2026 19:59:38 +0900
+Subject: [PATCH] CellBroadcastMetrics: Add 26Q1 UX/Map metric constants for
+ CBR compatibility
+
+Change-Id: Ibd4739876808b4bef1ca8fc589ac033b96e1a93f
+---
+ .../CellBroadcastMetrics.java                     | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java b/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java
+index a80b2d7..568a886 100644
+--- a/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java
++++ b/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java
+@@ -182,4 +182,19 @@ public class CellBroadcastMetrics {
+     public static final int ERRTYPE_FOUND_MULTIPLECBRPKGS =
+             CellBroadcastModuleStatsLog
+                     .CELL_BROADCAST_MODULE_ERROR_REPORTED__TYPE__ERROR_FOUND_MULTIPLE_CBR_PKGS;
++
++    // Values for CellBroadcastUxReported (26Q1 CBR compatibility)
++    public static final int ERRTYPE_TRANSLATION_NOT_APPLICABLE = 11;
++    public static final int ERRTYPE_MAP_UNKNOWN = 0;
++    public static final int ERRTYPE_MAP_NONE = 1;
++    public static final int ERRTYPE_MAP_NO_MESSAGE = 2;
++    public static final int ERRTYPE_MAP_NO_GEOMETRY_DATA = 3;
++    public static final int ERRTYPE_MAP_URI_ENCODING_FAILED = 4;
++    public static final int ERRTYPE_MAP_CORE_ACTIVITY_NOT_FOUND = 5;
++    public static final int ERRTYPE_MAP_CORE_ACTIVITY_START_FAILED = 6;
++
++    public static final int GEO_DATA_TYPE_UNKNOWN = 0;
++    public static final int GEO_DATA_TYPE_CIRCLE = 1;
++    public static final int GEO_DATA_TYPE_POLYGON = 2;
++    public static final int GEO_DATA_TYPE_MULTIPLE = 3;
+ }
+-- 
+2.56.1
+

@@ -1,4 +1,4 @@
-From 593e5ffe0eb055903e51b641bf34d162b1bb7867 Mon Sep 17 00:00:00 2001
+From 16320dd99ee12390ba722ea8041801412e4e77e3 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 11:06:46 +0900
 Subject: [PATCH 2/4] hwui: Read debug.hwui.wait_for_gpu_completion property
@@ -9,10 +9,10 @@ Change-Id: I07fa590f6e830dec350221b6b6a83f0e5345c79d
  1 file changed, 1 insertion(+)
 
 diff --git a/libs/hwui/Properties.cpp b/libs/hwui/Properties.cpp
-index 6d81a0fab..74f849d68 100644
+index a7d3c808f15e..996d74fed190 100644
 --- a/libs/hwui/Properties.cpp
 +++ b/libs/hwui/Properties.cpp
-@@ -156,6 +156,7 @@ bool Properties::load() {
+@@ -158,6 +158,7 @@ bool Properties::load() {
      enablePartialUpdates = base::GetBoolProperty(PROPERTY_ENABLE_PARTIAL_UPDATES, true);
  
      filterOutTestOverhead = base::GetBoolProperty(PROPERTY_FILTER_TEST_OVERHEAD, false);

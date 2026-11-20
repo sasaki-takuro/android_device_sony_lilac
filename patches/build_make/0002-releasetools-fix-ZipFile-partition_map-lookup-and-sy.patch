@@ -1,0 +1,65 @@
+From 3ef065d3ce10e4c00e1224efc3fe6a4f426a8b49 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Fri, 20 Nov 2026 22:20:49 +0900
+Subject: [PATCH 2/2] releasetools: fix ZipFile partition_map lookup and
+ symlink OTA check
+
+---
+ tools/releasetools/common.py                 | 14 ++++++++++++--
+ tools/releasetools/sign_target_files_apks.py |  7 +++----
+ 2 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/tools/releasetools/common.py b/tools/releasetools/common.py
+index 1ba996d793..65efb78339 100644
+--- a/tools/releasetools/common.py
++++ b/tools/releasetools/common.py
+@@ -1105,8 +1105,9 @@ class PartitionBuildProps(object):
+     """
+     data = ''
+     partition_map = PartitionMapFromTargetFiles(input_file)
+-    for prop_file in ['{}/etc/build.prop'.format(partition_map[name]),
+-                      '{}/build.prop'.format(partition_map[name])]:
++    part_dir = partition_map.get(name, name.upper())
++    for prop_file in ['{}/etc/build.prop'.format(part_dir),
++                      '{}/build.prop'.format(part_dir)]:
+       try:
+         data = ReadFromInputFile(input_file, prop_file)
+         break
+@@ -1379,6 +1380,15 @@ def PartitionMapFromTargetFiles(target_files_dir):
+       "system_dlkm": ["SYSTEM_DLKM", "SYSTEM/system_dlkm"],
+   }
+   partition_map = {}
++  if isinstance(target_files_dir, zipfile.ZipFile):
++    namelist = target_files_dir.namelist()
++    for partition, subdirs in possible_subdirs.items():
++      for subdir in subdirs:
++        prefix = subdir + "/"
++        if any(name.startswith(prefix) for name in namelist):
++          partition_map[partition] = subdir
++          break
++    return partition_map
+   for partition, subdirs in possible_subdirs.items():
+     for subdir in subdirs:
+       if os.path.exists(os.path.join(target_files_dir, subdir)):
+diff --git a/tools/releasetools/sign_target_files_apks.py b/tools/releasetools/sign_target_files_apks.py
+index f593d86bc5..db81ca1476 100755
+--- a/tools/releasetools/sign_target_files_apks.py
++++ b/tools/releasetools/sign_target_files_apks.py
+@@ -274,11 +274,10 @@ def IsOtaPackage(fp):
+ 
+ 
+ def IsEntryOtaPackage(input_zip, filename):
++  external_attr = input_zip.getinfo(filename).external_attr
++  if stat.S_ISLNK(external_attr >> 16):
++    return False
+   with input_zip.open(filename, "r") as fp:
+-    external_attr = input_zip.getinfo(filename).external_attr
+-    if stat.S_ISLNK(external_attr >> 16):
+-      return IsEntryOtaPackage(input_zip,
+-          os.path.join(os.path.dirname(filename), fp.read().decode()))
+     return IsOtaPackage(fp)
+ 
+ 
+-- 
+2.56.1
+

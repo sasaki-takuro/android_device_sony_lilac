@@ -1,4 +1,4 @@
-From 9f78dec99f1d1b59ab5184981a20c832342872fe Mon Sep 17 00:00:00 2001
+From c5589fa4f3de200ef063d8851e337d10f9729b70 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 27 Sep 2026 16:07:53 +0900
 Subject: [PATCH 1/2] PhoneSwitcher: Skip setPreferredDataModem on single SIM
@@ -12,7 +12,7 @@ Change-Id: Ia6582eb8d797fad85d69e7d65bdde9ca753b50a7
  1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/src/java/com/android/internal/telephony/data/PhoneSwitcher.java b/src/java/com/android/internal/telephony/data/PhoneSwitcher.java
-index f81b594..067ff9b 100644
+index f81b594add..067ff9b805 100644
 --- a/src/java/com/android/internal/telephony/data/PhoneSwitcher.java
 +++ b/src/java/com/android/internal/telephony/data/PhoneSwitcher.java
 @@ -1246,8 +1246,10 @@ public class PhoneSwitcher extends Handler {

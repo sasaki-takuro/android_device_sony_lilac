@@ -1,4 +1,4 @@
-From b7814fb52f75ca96bf79a92f4697667cda262b0c Mon Sep 17 00:00:00 2001
+From 8e40705d608fd8c270abe3c0e230931d661b97f5 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 11:50:53 +0900
 Subject: [PATCH 4/4] SystemUI: Add center volume overlay display
@@ -13,7 +13,7 @@ Change-Id: I8a969b38b3633bd3df8e1558be828691816da04a
 
 diff --git a/packages/SystemUI/res/drawable/volume_center_bg.xml b/packages/SystemUI/res/drawable/volume_center_bg.xml
 new file mode 100644
-index 000000000..ace947951
+index 000000000000..ace947951b34
 --- /dev/null
 +++ b/packages/SystemUI/res/drawable/volume_center_bg.xml
 @@ -0,0 +1,6 @@
@@ -24,7 +24,7 @@ index 000000000..ace947951
 +    <corners android:radius="16dp" />
 +</shape>
 diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt
-index 5f3529523..eae5f29c9 100644
+index 5f3529523a3c..eae5f29c9692 100644
 --- a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt
 +++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/binder/VolumeDialogViewBinder.kt
 @@ -18,12 +18,16 @@ package com.android.systemui.volume.dialog.ui.binder
@@ -155,7 +155,7 @@ index 5f3529523..eae5f29c9 100644
          View.AccessibilityDelegate() {
  
 diff --git a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt
-index 2d8674b0d..bfbd7c499 100644
+index 2d8674b0d70f..bfbd7c4996b3 100644
 --- a/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt
 +++ b/packages/SystemUI/src/com/android/systemui/volume/dialog/ui/viewmodel/VolumeDialogViewModel.kt
 @@ -32,6 +32,7 @@ import com.android.systemui.volume.dialog.dagger.scope.VolumeDialogScope

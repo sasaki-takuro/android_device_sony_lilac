@@ -1,0 +1,26 @@
+From ba8426849aad81099331243e762741911c203669 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Thu, 19 Nov 2026 22:56:31 +0900
+Subject: [PATCH 2/2] gen_build_prop: Respect Debuggable flag for userdebug
+ variant
+
+---
+ scripts/gen_build_prop.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/scripts/gen_build_prop.py b/scripts/gen_build_prop.py
+index a84704f65..ea5960879 100644
+--- a/scripts/gen_build_prop.py
++++ b/scripts/gen_build_prop.py
+@@ -28,6 +28,8 @@ TEST_KEY_DIR = "build/make/target/product/security"
+ def get_build_variant(product_config):
+   if product_config["Eng"]:
+     return "eng"
++  elif product_config["Debuggable"]:
++    return "userdebug"
+   else:
+     return "user"
+ 
+-- 
+2.56.1
+

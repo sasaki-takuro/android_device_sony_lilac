@@ -1,8 +1,8 @@
-From 53b177fc5aac1d6258d69823afd4df2f8d34eff7 Mon Sep 17 00:00:00 2001
+From 3e0a78f88bc674b1244fee2ae7a3f4ba7073ed13 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 11:02:03 +0900
-Subject: [PATCH] releasetools: Safely fallback to avbtool when avb_avbtool is
- missing
+Subject: [PATCH 1/2] releasetools: Safely fallback to avbtool when avb_avbtool
+ is missing
 
 Change-Id: Ia79332c040f01387cdf4b23268477c46d08d5c4a
 ---
@@ -10,7 +10,7 @@ Change-Id: Ia79332c040f01387cdf4b23268477c46d08d5c4a
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/tools/releasetools/sign_target_files_apks.py b/tools/releasetools/sign_target_files_apks.py
-index 73c4b50..f593d86 100755
+index 73c4b50ce3..f593d86bc5 100755
 --- a/tools/releasetools/sign_target_files_apks.py
 +++ b/tools/releasetools/sign_target_files_apks.py
 @@ -795,7 +795,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip

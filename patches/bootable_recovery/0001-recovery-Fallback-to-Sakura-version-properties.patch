@@ -1,0 +1,40 @@
+From ae7007fe6ea4af6991770f5fd55613e4a0e87783 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Thu, 19 Nov 2026 22:27:32 +0900
+Subject: [PATCH] recovery: Fallback to Sakura version properties
+
+Change-Id: Ifb4690dd75e8f4a37f598156d2e47e593cbaf3ea
+---
+ recovery.cpp | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/recovery.cpp b/recovery.cpp
+index 44c7261f..2699330e 100644
+--- a/recovery.cpp
++++ b/recovery.cpp
+@@ -887,13 +887,20 @@ Device::BuiltinAction start_recovery(Device* device, const std::vector<std::stri
+   // Assume the first instance of "-[0-9]{8}-", or "-[0-9]{8}_[0-9]{6}-" in case
+   // LINEAGE_VERSION_APPEND_TIME_OF_DAY is set to true has the desired date.
+   std::string ver = android::base::GetProperty("ro.lineage.version", "");
++  if (ver.empty()) {
++    ver = android::base::GetProperty("ro.modversion", "");
++  }
+   std::smatch ver_date_match;
+   std::regex_search(ver, ver_date_match, std::regex("-(\\d{8}(_\\d{6})?)-"));
+   std::string ver_date = ver_date_match.str(1);  // Empty if no match.
+ 
++  std::string build_ver = android::base::GetProperty("ro.lineage.build.version", "");
++  if (build_ver.empty()) {
++    build_ver = android::base::GetProperty("ro.lineage.display.version", "(unknown)");
++  }
++
+   std::vector<std::string> title_lines = {
+-    "Version " + android::base::GetProperty("ro.lineage.build.version", "(unknown)") +
+-        " (" + ver_date + ")",
++    "Version " + build_ver + " (" + ver_date + ")",
+   };
+   title_lines.push_back("Product name - " + android::base::GetProperty("ro.product.device", ""));
+   if (android::base::GetBoolProperty("ro.build.ab_update", false)) {
+-- 
+2.56.1
+

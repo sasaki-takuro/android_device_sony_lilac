@@ -1,4 +1,4 @@
-From e69b2a15e91851aac441a26bc3839b740fd98211 Mon Sep 17 00:00:00 2001
+From b16afe562fa086c2deb6aff5a7decf3b6929ff2f Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 09:25:38 +0900
 Subject: [PATCH 2/3] BpfNetMaps: Fix null check for sLocalNetAccessMap in
@@ -10,10 +10,10 @@ Change-Id: I8b37fa8cdeb6b3d6085d08ced2154eb2c2e3ca5d
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/service/src/com/android/server/BpfNetMaps.java b/service/src/com/android/server/BpfNetMaps.java
-index a968193..1ed2078 100644
+index 4795d5d7a5..2e6394908c 100644
 --- a/service/src/com/android/server/BpfNetMaps.java
 +++ b/service/src/com/android/server/BpfNetMaps.java
-@@ -1326,7 +1326,7 @@ public class BpfNetMaps {
+@@ -1325,7 +1325,7 @@ public class BpfNetMaps {
                      (key, value) -> "[" + key.dstAddr + "]: "
                              + value.iif1 + "(" + mDeps.getIfName(value.iif1) + "), "
                              + value.iif2 + "(" + mDeps.getIfName(value.iif2) + ")");

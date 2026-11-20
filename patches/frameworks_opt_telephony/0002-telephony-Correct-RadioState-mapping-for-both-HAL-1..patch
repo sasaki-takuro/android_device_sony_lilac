@@ -1,4 +1,4 @@
-From d2a8c26c4d72007d7513f305a3968709efe0058b Mon Sep 17 00:00:00 2001
+From 579a90af4feca46413db5f0107277eafc76c0102 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 27 Sep 2026 16:49:21 +0900
 Subject: [PATCH 2/2] telephony: Correct RadioState mapping for both HAL 1.0
@@ -10,7 +10,7 @@ Change-Id: I360b993bcde469dc89b0c2e318e7ce2d738ff407
  1 file changed, 22 insertions(+), 1 deletion(-)
 
 diff --git a/src/java/com/android/internal/telephony/RadioIndication.java b/src/java/com/android/internal/telephony/RadioIndication.java
-index 32782dc..a6ce976 100644
+index 32782dcac8..a6ce97663f 100644
 --- a/src/java/com/android/internal/telephony/RadioIndication.java
 +++ b/src/java/com/android/internal/telephony/RadioIndication.java
 @@ -125,7 +125,28 @@ public class RadioIndication extends IRadioIndication.Stub {
