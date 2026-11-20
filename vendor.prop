@@ -25,6 +25,3 @@ persist.vendor.radio.imsregrequired=1
 # Graphics / HWUI
 debug.hwui.wait_for_gpu_completion=true
 
-# Android 16 Kernel 4.4 Compatibility
-ro.bpf.kver_override=4.9.0
-ro.incremental.enable=true
