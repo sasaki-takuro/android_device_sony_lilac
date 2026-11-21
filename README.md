@@ -79,58 +79,74 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (Project Sakura 16.
 ## Project Sakura 16.3 ビルド再現手順
 
 ### 1. ワークスペースの初期化
-    mkdir -p ~/sakura16
-    cd ~/sakura16
-    repo init -u https://github.com/ProjectSakura/android.git -b 16.3 --git-lfs
+
+```bash
+mkdir -p ~/sakura16
+cd ~/sakura16
+repo init -u https://github.com/ProjectSakura/android.git -b 16.3 --git-lfs
+```
 
 ### 2. ローカルマニフェストの配置
+
 本リポジトリに含まれる再現用マニフェストを取得して配置します。
-    mkdir -p .repo/local_manifests
-    curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/sakura-16.3-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
+
+```bash
+mkdir -p .repo/local_manifests
+curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/sakura-16.3-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
+```
 
 ### 3. ソースコードの同期
-    repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+
+```bash
+repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
+```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
+
 `device/sony/lilac/patches/` 配下に格納されている全 19 個のパッチを適用します。
-    # bootable/recovery
-    git -C bootable/recovery am ${PWD}/device/sony/lilac/patches/bootable_recovery/*.patch
 
-    # build/make
-    git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
+```bash
+# bootable/recovery
+git -C bootable/recovery am ${PWD}/device/sony/lilac/patches/bootable_recovery/*.patch
 
-    # build/soong
-    git -C build/soong am ${PWD}/device/sony/lilac/patches/build_soong/*.patch
+# build/make
+git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
 
-    # frameworks/base
-    git -C frameworks/base am ${PWD}/device/sony/lilac/patches/frameworks_base/*.patch
+# build/soong
+git -C build/soong am ${PWD}/device/sony/lilac/patches/build_soong/*.patch
 
-    # frameworks/opt/telephony
-    git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_opt_telephony/*.patch
+# frameworks/base
+git -C frameworks/base am ${PWD}/device/sony/lilac/patches/frameworks_base/*.patch
 
-    # hardware/qcom-caf/msm8998/media
-    git -C hardware/qcom-caf/msm8998/media am ${PWD}/device/sony/lilac/patches/hardware_qcom-caf_msm8998_media/*.patch
+# frameworks/opt/telephony
+git -C frameworks/opt/telephony am ${PWD}/device/sony/lilac/patches/frameworks_opt_telephony/*.patch
 
-    # packages/modules/CellBroadcastService
-    git -C packages/modules/CellBroadcastService am ${PWD}/device/sony/lilac/patches/packages_modules_CellBroadcastService/*.patch
+# hardware/qcom-caf/msm8998/media
+git -C hardware/qcom-caf/msm8998/media am ${PWD}/device/sony/lilac/patches/hardware_qcom-caf_msm8998_media/*.patch
 
-    # packages/modules/Connectivity
-    git -C packages/modules/Connectivity am ${PWD}/device/sony/lilac/patches/packages_modules_Connectivity/*.patch
+# packages/modules/CellBroadcastService
+git -C packages/modules/CellBroadcastService am ${PWD}/device/sony/lilac/patches/packages_modules_CellBroadcastService/*.patch
 
-    # packages/modules/Wifi
-    git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
+# packages/modules/Connectivity
+git -C packages/modules/Connectivity am ${PWD}/device/sony/lilac/patches/packages_modules_Connectivity/*.patch
 
-    # prebuilts/build-tools (Arch Linux 等でホストの date / tar を使用する場合)
-    git -C prebuilts/build-tools am ${PWD}/device/sony/lilac/patches/prebuilts_build-tools/*.patch
+# packages/modules/Wifi
+git -C packages/modules/Wifi am ${PWD}/device/sony/lilac/patches/packages_modules_Wifi/*.patch
 
-    # vendor/lineage
-    git -C vendor/lineage am ${PWD}/device/sony/lilac/patches/vendor_lineage/*.patch
+# prebuilts/build-tools (Arch Linux 等でホストの date / tar を使用する場合)
+git -C prebuilts/build-tools am ${PWD}/device/sony/lilac/patches/prebuilts_build-tools/*.patch
+
+# vendor/lineage
+git -C vendor/lineage am ${PWD}/device/sony/lilac/patches/vendor_lineage/*.patch
+```
 
 ### 5. ビルド実行
-    source build/envsetup.sh
-    lunch lineage_lilac_dcm-bp4a-userdebug
-    m bacon
 
+```bash
+source build/envsetup.sh
+lunch lineage_lilac_dcm-bp4a-userdebug
+m bacon
+```
 ---
 
 ## 適用パッチ一覧（概要）
