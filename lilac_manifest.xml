@@ -4,7 +4,7 @@
   <remote name="github-sony" fetch="https://github.com" />
 
   <!-- Kernel -->
-  <project name="sasaki-takuro/android_kernel_sony_msm8998" path="kernel/sony/msm8998" remote="github-sony" revision="lineage-23.2-lilac-dcm" />
+  <project name="sasaki-takuro/android_kernel_sony_msm8998" path="kernel/sony/msm8998" remote="github-sony" revision="sakura-16.3-dcm" />
 
   <!-- Device Trees -->
   <project name="sasaki-takuro/android_device_sony_yoshino-common" path="device/sony/yoshino-common" remote="github-sony" revision="sakura-16.3-dcm" />
