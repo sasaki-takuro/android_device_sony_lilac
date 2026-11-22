@@ -1,2 +1,10 @@
 soong_namespace {
 }
+
+prebuilt_etc_xml {
+    name: "apns-conf-lilac",
+    src: "apns-conf.xml",
+    filename: "apns-conf.xml",
+    overrides: ["apns-conf.xml"],
+    product_specific: true,
+}
