@@ -81,6 +81,12 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (WitAqua 16.2 / Lin
    - 不意のベースバンド書き換えや競合を防ぐため、`sony-modem-switcher` サービスの自動起動停止および `OpenCustomizationSelector`（モデム切り替え機能）をオミット・無効化。
 7. **KernelSU（KernelSU Next）のデフォルト非搭載**:
    - ビルド時に `WITH_KSU=true` を明示しない限りカーネル組み込みを行わない構成とし、標準リリースではオミット（標準のクリーンなカーネル状態を維持）。
+8. **カメラ HAL (`libsensorfix.so`) の HIDL 通信耐性強化（初回黒画面・SIGABRT 修正）**:
+   - すべての HIDL 呼び出し戻り値（`.isOk()`）を検証し、センサーサービス再起動等で `DEAD_OBJECT` が発生した際に `ISensorManager` を自動再取得するよう修正。初回起動時の黒画面や `vendor.somc.hardware.camera.provider@1.0-service` の `SIGABRT` を解消。
+9. **Adreno 540（MSM8998）向け Android 16 RenderEngine 描画安定化**:
+   - `debug.renderengine.threaded=false`、`debug.renderengine.graphite=false`、`persist.sys.sf.disable_blurs=1`、`debug.hwui.use_gpu_pixel_buffers=false` および `SettingsProvider` でのアニメーションスケール 3 項目初期値 `0%` 固定により、`kgsl-3d0` の GPU フォールトや画面乱れを防止。
+10. **Linux 4.4 カーネル向け `epoll_pwait2` システムコールバックポート**:
+   - Android 16 ユーザー空間（ART / bionic 等）が要求する `epoll_pwait2`（システムコール番号 441）を `kernel/sony/msm8998` へバックポート。
 
 ---
 
@@ -106,7 +112,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 13 個の必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 14 個の必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -146,6 +152,7 @@ m bacon
   - 新規ストレージ利用不可時に proto フラグストレージへフォールバックする `AconfigFlags` 修正。
   - `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   - ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
+  - `SettingsProvider` にて `def_animator_duration_scale` を含むアニメーションスケール 3 項目すべての初期値を `0%` に固定。
   - SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
 - **`frameworks_opt_telephony`**:
   - シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
