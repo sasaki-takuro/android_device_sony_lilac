@@ -103,7 +103,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
 
-`device/sony/lilac/patches/` 配下に格納されている全 19 個のパッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている全 20 個のパッチを適用します。
 
 ```bash
 # bootable/recovery
