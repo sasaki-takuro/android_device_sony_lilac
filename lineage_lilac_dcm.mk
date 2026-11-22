@@ -49,3 +49,6 @@ PRODUCT_COPY_FILES += \
 # APN configuration
 PRODUCT_COPY_FILES += \
     device/sony/lilac/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
+
+# Ensure userdebug builds remain debuggable (ro.debuggable=1) so Adreno 540 debug.* workarounds take effect
+PRODUCT_NOT_DEBUGGABLE_IN_USERDEBUG :=
