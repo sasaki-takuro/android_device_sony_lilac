@@ -47,8 +47,8 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_NFC_PATH)/product/etc/felica/mfs.cfg:$(TARGET_COPY_OUT_PRODUCT)/etc/felica/mfs.cfg
 
 # APN configuration
-PRODUCT_COPY_FILES += \
-    device/sony/lilac/apns-conf.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/apns-conf.xml
+PRODUCT_PACKAGES += \
+    apns-conf-lilac
 
 # Ensure userdebug builds remain debuggable (ro.debuggable=1) so Adreno 540 debug.* workarounds take effect
 PRODUCT_NOT_DEBUGGABLE_IN_USERDEBUG :=
