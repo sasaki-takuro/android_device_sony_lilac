@@ -1,7 +1,7 @@
-# [Unofficial] Sony Xperia XZ1 Compact (SO-02K) を Android 16 化するビルド設定・手順書（LineageOS 23.2 ベース / 国内VoLTE対応）
+# [Unofficial] Sony Xperia XZ1 Compact (SO-02K) を Android 16 化するビルド設定・手順書（WitAqua 16.2 / LineageOS 23.2 ベース / 国内VoLTE・SELinux Enforcing対応）
 
 ## これは何？
-NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (LineageOS 23.2 / 非公式・Unofficial)** を導入し、日本国内の **VoLTE 通話やデータ通信を正常に利用可能とするための非公式デバイスツリー・ビルド手順書** です。
+NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (WitAqua 16.2 / LineageOS 23.2 ベース / 非公式・Unofficial)** を導入し、日本国内の **VoLTE 通話・データ通信・カメラ（SELinux Enforcing 維持）を正常に利用可能とするための非公式デバイスツリー・ビルド手順書** です。
 
 * **対象端末**: Xperia XZ1 Compact（NTTドコモ SO-02K）
 * **ベースOS**: LineageOS 23.2（Android 16）
@@ -68,7 +68,10 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (LineageOS 23.2 / �
 1. **ドコモ（SO-02K）固有プロパティの分離と適用**:
    * グローバル用プロパティ（`system.prop`）を汚さず、ドコモ専用定義として `system_dcm.prop` を分離。
    * `ro.semc.version.*`、`ro.semc.product.*`、`ro.somc.*` などの実機パラメータを正確に投入。
-2. **SELinux ポリシーの修正（yoshino-common 側）**:
+2. **SELinux `Enforcing` モードでのカメラ完全動作対応**:
+  - `AT_SECURE` 環境下で `LD_PRELOAD` / `LD_LIBRARY_PATH` が無効化されてもカメラ HAL および `cacaoserver` が正常動作するよう、プロプライエタリ ELF バイナリ群へ `RUNPATH=/vendor/lib/cama15` および `NEEDED`（`libsensorfix.so` / `libsonypiecompat.so`）を `patchelf` で埋め込み。
+  - `hal_camera_somc.te` / `lilac_enforcing.te` へ必要な権限（`fwk_sensor_service`、`hal_graphics_allocator` 等）を追加し、`avc: denied` なしでカメラ動作を実現。
+3. **SELinux ポリシーの修正（yoshino-common 側）**:
    * `vendor_init.te` を改修し、`/vendor/build.prop` からのプロパティ読み込み時に `semc_version_prop`、`semc_product_prop`、`somc_oem_prop` への `set_prop` 権限を付与して拒否（denial）を解消。
 3. **アサートおよびターゲット名正規化**:
    * 機種判定から `G8441` を排除し、`SO-02K` 向けターゲットとして統一。
@@ -79,20 +82,20 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (LineageOS 23.2 / �
 
 ---
 
-## LineageOS 23.2 ビルド再現手順
+## WitAqua 16.2 ビルド再現手順
 
 ### 1. ワークスペースの初期化
 ```bash
-mkdir -p ~/lineage-23.2
-cd ~/lineage-23.2
-repo init -u https://github.com/LineageOS/android.git -b lineage-23.2 --git-lfs
+mkdir -p ~/witaqua-16
+cd ~/witaqua-16
+repo init -u https://github.com/WitAqua/manifest.git -b 16.2 --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
 本リポジトリに含まれる再現用マニフェストを取得して配置します。
 ```bash
 mkdir -p .repo/local_manifests
-curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/lineage-23.2-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
+curl -sL https://raw.githubusercontent.com/sasaki-takuro/android_device_sony_lilac/witaqua-16.2-dcm/lilac_manifest.xml -o .repo/local_manifests/lilac.xml
 ```
 
 ### 3. ソースコードの同期

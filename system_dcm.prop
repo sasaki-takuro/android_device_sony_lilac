@@ -25,3 +25,7 @@ ro.semc.product.device=G84
 
 # Tell SurfaceFlinger not to rely on ConfigStore
 android.hardware.configstore.1.0-service=0
+
+# Android 16 Kernel 4.4 Compatibility
+ro.bpf.kver_override=4.9.0
+ro.incremental.enable=true

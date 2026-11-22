@@ -114,4 +114,26 @@ sed -i 's/\x90\x20/\xa8\x20/' "${DEVICE_ROOT}"/vendor/lib/libsomc_chokoballpal.s
 sed -i 's/\x4f\xf0\x00\x5e/\x4f\xf0\x00\x0e/' "${DEVICE_ROOT}"/vendor/lib/libcammw_util.so
 sed -i 's/\x03\xf0\xd4\xfa/\x00\xbf\x00\xbf/' "${DEVICE_ROOT}"/vendor/lib/libcammw_util.so
 
+# Enforcing camera compatibility fixups (AT_SECURE RUNPATH & libsensorfix)
+for f in \
+    "${DEVICE_ROOT}"/vendor/bin/hw/vendor.somc.hardware.camera.provider@1.0-service \
+    "${DEVICE_ROOT}"/vendor/lib/libcammw.so \
+    "${DEVICE_ROOT}"/vendor/lib/libcammw_util.so \
+    "${DEVICE_ROOT}"/vendor/lib/libexcal_core.so \
+    "${DEVICE_ROOT}"/vendor/lib/libexcal_pal.so \
+    "${DEVICE_ROOT}"/vendor/lib/libexcal_system.so \
+    "${DEVICE_ROOT}"/vendor/lib/libcacao_common.so \
+    "${DEVICE_ROOT}"/vendor/lib/libcacao_process_ctrl.so \
+    "${DEVICE_ROOT}"/vendor/lib/libcameralight.so \
+    "${DEVICE_ROOT}"/vendor/lib/libsomc_chokoballpal.so \
+    "${DEVICE_ROOT}"/vendor/lib/libmmcamera*.so \
+    "${DEVICE_ROOT}"/vendor/lib/vendor.somc.camera.device@3.*-impl.so \
+    "${DEVICE_ROOT}"/vendor/lib/vendor.somc.hardware.camera.cacao@3.0-impl.so \
+    "${DEVICE_ROOT}"/vendor/lib/camera/*.so \
+    "${DEVICE_ROOT}"/vendor/lib/cama15/*.so; do
+    [ -f "$f" ] && "${PATCHELF_0_17_2}" --set-rpath "/vendor/lib/cama15" "$f"
+done
+grep -q "libsensorfix.so" "${DEVICE_ROOT}"/vendor/bin/hw/vendor.somc.hardware.camera.provider@1.0-service || "${PATCHELF_0_17_2}" --add-needed "libsensorfix.so" "${DEVICE_ROOT}"/vendor/bin/hw/vendor.somc.hardware.camera.provider@1.0-service
+grep -q "libsensorfix.so" "${DEVICE_ROOT}"/vendor/lib/libcammw.so || "${PATCHELF_0_17_2}" --add-needed "libsensorfix.so" "${DEVICE_ROOT}"/vendor/lib/libcammw.so
+
 "${MY_DIR}"/setup-makefiles.sh
