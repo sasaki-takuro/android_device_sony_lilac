@@ -81,9 +81,9 @@ NTTドコモ版 Xperia XZ1 Compact (SO-02K) に **Android 16 (DerpFest 16.2 / �
 ### 1. ワークスペースの初期化
 
 ```bash
-mkdir -p ~/sakura16
-cd ~/sakura16
-repo init -u https://github.com/ProjectSakura/android.git -b 16.3 --git-lfs
+mkdir -p ~/derpfest-16.2
+cd ~/derpfest-16.2
+repo init -u https://github.com/DerpFest-AOSP/android_manifest.git -b 16.2 --git-lfs
 ```
 
 ### 2. ローカルマニフェストの配置
