@@ -1,0 +1,42 @@
+From f3d6882a4d551427e0dbc55ba85e238912c7b6fb Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sun, 22 Nov 2026 12:49:19 +0900
+Subject: [PATCH] Add dummy metric error constants to CellBroadcastMetrics
+
+Change-Id: I70c87a748679c8d9fadbf560228b2e58638eef00
+---
+ .../CellBroadcastMetrics.java                 | 20 +++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java b/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java
+index a80b2d7..ebb6ac2 100644
+--- a/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java
++++ b/src/com/android/cellbroadcastservice/CellBroadcastMetrics.java
+@@ -182,4 +182,24 @@ public class CellBroadcastMetrics {
+     public static final int ERRTYPE_FOUND_MULTIPLECBRPKGS =
+             CellBroadcastModuleStatsLog
+                     .CELL_BROADCAST_MODULE_ERROR_REPORTED__TYPE__ERROR_FOUND_MULTIPLE_CBR_PKGS;
++
++    // =========================================================================
++    // STUB CONSTANTS FOR 25Q2 BACKPORT COMPATIBILITY
++    // =========================================================================
++    public static final int ERRTYPE_TRANSLATION_NONE = 0;
++    public static final int ERRTYPE_TRANSLATION_UNKNOWN = 0;
++    public static final int ERRTYPE_TRANSLATION_NOT_APPLICABLE = 0;
++
++    public static final int ERRTYPE_MAP_NONE = 0;
++    public static final int ERRTYPE_MAP_UNKNOWN = 0;
++    public static final int ERRTYPE_MAP_NO_MESSAGE = 1;
++    public static final int ERRTYPE_MAP_NO_GEOMETRY_DATA = 2;
++    public static final int ERRTYPE_MAP_URI_ENCODING_FAILED = 3;
++    public static final int ERRTYPE_MAP_CORE_ACTIVITY_START_FAILED = 4;
++    public static final int ERRTYPE_MAP_CORE_ACTIVITY_NOT_FOUND = 5;
++
++    public static final int GEO_DATA_TYPE_UNKNOWN = 0;
++    public static final int GEO_DATA_TYPE_CIRCLE = 1;
++    public static final int GEO_DATA_TYPE_POLYGON = 2;
++    public static final int GEO_DATA_TYPE_MULTIPLE = 3;
+ }
+-- 
+2.56.1
+

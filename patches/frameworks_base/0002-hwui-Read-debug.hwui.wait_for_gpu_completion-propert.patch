@@ -1,7 +1,7 @@
-From 593e5ffe0eb055903e51b641bf34d162b1bb7867 Mon Sep 17 00:00:00 2001
+From bfbc170eaf48b4ba678ac6006be7c3faed4b17bc Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 11:06:46 +0900
-Subject: [PATCH 2/4] hwui: Read debug.hwui.wait_for_gpu_completion property
+Subject: [PATCH 2/5] hwui: Read debug.hwui.wait_for_gpu_completion property
 
 Change-Id: I07fa590f6e830dec350221b6b6a83f0e5345c79d
 ---

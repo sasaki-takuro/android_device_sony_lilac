@@ -1,4 +1,4 @@
-From 53b177fc5aac1d6258d69823afd4df2f8d34eff7 Mon Sep 17 00:00:00 2001
+From 2d34203eb21d115fb10d5192051fdda71d64c3b8 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 11:02:03 +0900
 Subject: [PATCH] releasetools: Safely fallback to avbtool when avb_avbtool is
@@ -10,28 +10,28 @@ Change-Id: Ia79332c040f01387cdf4b23268477c46d08d5c4a
  1 file changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/tools/releasetools/sign_target_files_apks.py b/tools/releasetools/sign_target_files_apks.py
-index 73c4b50..f593d86 100755
+index 83900ee0a1..7a1843ecae 100755
 --- a/tools/releasetools/sign_target_files_apks.py
 +++ b/tools/releasetools/sign_target_files_apks.py
-@@ -795,7 +795,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+@@ -794,7 +794,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+         print("           : %-*s payload   (%s)" % (
              maxsize, name, payload_key))
  
+-        avbtool = misc_info['avb_avbtool'] if 'avb_avbtool' in misc_info else 'avbtool'
++        avbtool = misc_info.get('avb_avbtool', 'avbtool') if 'avb_avbtool' in misc_info else 'avbtool'
          signed_apex = apex_utils.SignApex(
--            misc_info['avb_avbtool'],
-+            misc_info.get('avb_avbtool', 'avbtool'),
+             avbtool,
              data,
-             payload_key,
-             container_key,
 @@ -891,7 +891,7 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+       # key is specified via --avb_system_other_key.
        signing_key = OPTIONS.avb_keys.get("system_other")
        if signing_key:
+-        avbtool = misc_info['avb_avbtool'] if 'avb_avbtool' in misc_info else 'avbtool'
++        avbtool = misc_info.get('avb_avbtool', 'avbtool') if 'avb_avbtool' in misc_info else 'avbtool'
          public_key = common.ExtractAvbPublicKey(
--            misc_info['avb_avbtool'], signing_key)
-+            misc_info.get('avb_avbtool', 'avbtool'), signing_key)
+             avbtool, signing_key)
          print("    Rewriting AVB public key of system_other in /product")
-         common.ZipWrite(output_tf_zip, public_key, filename)
- 
-@@ -917,10 +917,10 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
+@@ -919,10 +919,10 @@ def ProcessTargetFiles(input_tf_zip: zipfile.ZipFile, output_tf_zip: zipfile.Zip
              virt_apex_temp_file.write(input_tf_zip.read(virt_apex_path))
              virt_apex_temp_file.flush()
              new_pubkey = GetMicrodroidVbmetaKey(virt_apex_temp_file.name,
@@ -44,7 +44,7 @@ index 73c4b50..f593d86 100755
            with open(new_pubkey_path, 'rb') as f:
              new_pubkey = f.read()
  
-@@ -1099,7 +1099,7 @@ def ReplaceKeyInAvbHashtreeFooter(image, new_key, new_algorithm, misc_info):
+@@ -1101,7 +1101,7 @@ def ReplaceKeyInAvbHashtreeFooter(image, new_key, new_algorithm, misc_info):
      return hashtree_descriptors[0]["Hashtree descriptor"]
  
    # Get avb info

@@ -1,7 +1,7 @@
-From b7814fb52f75ca96bf79a92f4697667cda262b0c Mon Sep 17 00:00:00 2001
+From cdb018ea2e5cfca626e357422ae9cfb48b718d1a Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 11:50:53 +0900
-Subject: [PATCH 4/4] SystemUI: Add center volume overlay display
+Subject: [PATCH 4/5] SystemUI: Add center volume overlay display
 
 Change-Id: I8a969b38b3633bd3df8e1558be828691816da04a
 ---

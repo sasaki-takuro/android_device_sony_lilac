@@ -1,0 +1,27 @@
+From e7414249fd1fbdf682e9293f3d1111e57e7a8295 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Sun, 22 Nov 2026 06:27:15 +0900
+Subject: [PATCH] config: Disable GMS inclusion by default for vanilla build
+
+---
+ config/derpfest.mk | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/config/derpfest.mk b/config/derpfest.mk
+index a3c4a21c..4c5295ad 100644
+--- a/config/derpfest.mk
++++ b/config/derpfest.mk
+@@ -95,8 +95,8 @@ endif
+ DONT_DEXPREOPT_PREBUILTS := true
+ 
+ # Include GMS by default
+-WITH_GMS := true
+-$(call inherit-product, vendor/gms/products/gms.mk)
++# WITH_GMS := true
++# $(call inherit-product, vendor/gms/products/gms.mk)
+ 
+ # Signing
+ ifneq (eng,$(TARGET_BUILD_VARIANT))
+-- 
+2.56.1
+

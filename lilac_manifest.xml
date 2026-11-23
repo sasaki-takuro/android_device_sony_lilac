@@ -4,13 +4,13 @@
   <remote name="github-sony" fetch="https://github.com" />
 
   <!-- Kernel -->
-  <project name="sasaki-takuro/android_kernel_sony_msm8998" path="kernel/sony/msm8998" remote="github-sony" revision="lineage-23.2-lilac-dcm" />
+  <project name="sasaki-takuro/android_kernel_sony_msm8998" path="kernel/sony/msm8998" remote="github-sony" revision="derpfest-16.2-dcm" />
 
   <!-- Device Trees -->
-  <project name="sasaki-takuro/android_device_sony_yoshino-common" path="device/sony/yoshino-common" remote="github-sony" revision="lineage-23.2-dcm" />
-  <project name="sasaki-takuro/android_device_sony_lilac" path="device/sony/lilac" remote="github-sony" revision="lineage-23.2-dcm" />
+  <project name="sasaki-takuro/android_device_sony_yoshino-common" path="device/sony/yoshino-common" remote="github-sony" revision="derpfest-16.2-dcm" />
+  <project name="sasaki-takuro/android_device_sony_lilac" path="device/sony/lilac" remote="github-sony" revision="derpfest-16.2-dcm" />
 
   <!-- Vendor Blobs -->
-  <project name="sasaki-takuro/android_vendor_sony_yoshino-common" path="vendor/sony/yoshino-common" remote="github-sony" revision="lineage-23.2-dcm" />
-  <project name="sasaki-takuro/android_vendor_sony_lilac" path="vendor/sony/lilac" remote="github-sony" revision="lineage-23.2-dcm" />
+  <project name="sasaki-takuro/android_vendor_sony_yoshino-common" path="vendor/sony/yoshino-common" remote="github-sony" revision="derpfest-16.2-dcm" />
+  <project name="sasaki-takuro/android_vendor_sony_lilac" path="vendor/sony/lilac" remote="github-sony" revision="derpfest-16.2-dcm" />
 </manifest>

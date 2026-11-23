@@ -1,4 +1,4 @@
-From 9e2c428c9330bd13467b5869ffb28c2edc884432 Mon Sep 17 00:00:00 2001
+From 88f1758d4bba0295b6d990673fe86b0eeb018e5b Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 09:25:38 +0900
 Subject: [PATCH 3/3] BpfNetMaps: Gracefully skip missing local_net BPF maps on
@@ -10,7 +10,7 @@ Change-Id: I25c614c16192dd00874b7fdffb135697ebdffb10
  1 file changed, 29 insertions(+), 11 deletions(-)
 
 diff --git a/service/src/com/android/server/BpfNetMaps.java b/service/src/com/android/server/BpfNetMaps.java
-index 1ed2078..77d66e3 100644
+index 1ed2078e55..77d66e3e7d 100644
 --- a/service/src/com/android/server/BpfNetMaps.java
 +++ b/service/src/com/android/server/BpfNetMaps.java
 @@ -353,22 +353,34 @@ public class BpfNetMaps {

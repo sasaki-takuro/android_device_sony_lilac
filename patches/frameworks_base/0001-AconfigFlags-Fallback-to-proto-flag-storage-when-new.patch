@@ -1,23 +1,24 @@
-From 16f178e75e8fb93291d9d85041ea68611a8d9933 Mon Sep 17 00:00:00 2001
+From e1428bdd96f0cd136098ce3e8d9f61b8f4b34073 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sun, 15 Nov 2026 09:23:05 +0900
-Subject: [PATCH 1/4] AconfigFlags: Fallback to proto flag storage when new
+Subject: [PATCH 1/5] AconfigFlags: Fallback to proto flag storage when new
  storage is unavailable
 
 Change-Id: I3977509faefaff0e8755bf9ad53ae0eab8f0b183
 ---
- .../com/android/internal/pm/pkg/component/AconfigFlags.java    | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../com/android/internal/pm/pkg/component/AconfigFlags.java   | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/core/java/com/android/internal/pm/pkg/component/AconfigFlags.java b/core/java/com/android/internal/pm/pkg/component/AconfigFlags.java
-index d1067a79d..f9aba5c5e 100644
+index 7503fb1f9..f9aba5c5e 100644
 --- a/core/java/com/android/internal/pm/pkg/component/AconfigFlags.java
 +++ b/core/java/com/android/internal/pm/pkg/component/AconfigFlags.java
-@@ -102,7 +102,8 @@ public class AconfigFlags {
+@@ -102,8 +102,8 @@ public class AconfigFlags {
      }
  
      private static boolean useNewStorage() {
--        return newStoragePublicApi() && Flags.useNewAconfigStorage();
+-        return newStoragePublicApi() && Flags.useNewAconfigStorage() &&
+-                Environment.getMetadataDirectory().exists();
 +        // Legacy devices without /metadata aconfig storage fall back to proto flag files.
 +        return false;
      }
