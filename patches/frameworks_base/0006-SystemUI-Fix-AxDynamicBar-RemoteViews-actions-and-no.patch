@@ -1,0 +1,187 @@
+From 501babd038001ee4e658215caaaae5940d80ddc8 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Mon, 23 Nov 2026 09:05:29 +0900
+Subject: [PATCH] SystemUI: Fix AxDynamicBar RemoteViews actions and
+ notification removal
+
+Pass a RemoteViews.InteractionHandler with startPendingIntent and collapseIsland() when inflating or reapplying notification RemoteViews in AxDynamicBar, and forward onNotificationRemoved to ScrimUtils in NotificationListener so dismissed or cancelled items are cleared automatically.
+---
+ .../ui/compose/ExpandedNotificationContent.kt | 25 +++++++++++--
+ .../ui/compose/ExpandedOngoingContent.kt      | 36 +++++++++++++++----
+ .../statusbar/NotificationListener.java       |  1 +
+ 3 files changed, 53 insertions(+), 9 deletions(-)
+
+diff --git a/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedNotificationContent.kt b/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedNotificationContent.kt
+index 76e5fd88fe0c..f52dfc894a7f 100644
+--- a/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedNotificationContent.kt
++++ b/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedNotificationContent.kt
+@@ -17,6 +17,7 @@
+ package com.android.systemui.axdynamicbar.ui.compose
+ 
+ import android.app.Notification
++import android.app.PendingIntent
+ import android.app.RemoteInput
+ import android.content.Context
+ import android.content.Intent
+@@ -168,6 +169,7 @@ internal fun NotificationExpanded(
+         if (hasProgress || hasCustomContent) {
+             SbnRemoteViewContent(
+                 event.sbn,
++                interactor = interactor,
+                 fallback = {
+                     if (hasProgress) {
+                         NotificationProgressFallback(event)
+@@ -286,8 +288,25 @@ private fun resolveRemoteViews(ctx: Context, sbn: StatusBarNotification): Remote
+ }
+ 
+ @Composable
+-internal fun SbnRemoteViewContent(sbn: StatusBarNotification, fallback: @Composable () -> Unit) {
++internal fun SbnRemoteViewContent(
++    sbn: StatusBarNotification,
++    interactor: IslandActions? = null,
++    fallback: @Composable () -> Unit,
++) {
+     var remoteViewFailed by remember(sbn.key) { mutableStateOf(false) }
++    val interactionHandler = remember(sbn.key, interactor) {
++        RemoteViews.InteractionHandler { view, pendingIntent, response ->
++            val launched = RemoteViews.startPendingIntent(
++                view,
++                pendingIntent,
++                response.getLaunchOptions(view),
++            )
++            if (launched) {
++                interactor?.collapseIsland()
++            }
++            launched
++        }
++    }
+ 
+     if (!remoteViewFailed) {
+         AndroidView(
+@@ -295,7 +314,7 @@ internal fun SbnRemoteViewContent(sbn: StatusBarNotification, fallback: @Composa
+                 FrameLayout(factoryCtx).apply {
+                     try {
+                         val rv = resolveRemoteViews(factoryCtx, sbn)
+-                        val inflated = rv?.apply(factoryCtx, this)
++                        val inflated = rv?.apply(factoryCtx, this, interactionHandler)
+                         if (inflated != null) {
+                             addView(
+                                 inflated,
+@@ -316,7 +335,7 @@ internal fun SbnRemoteViewContent(sbn: StatusBarNotification, fallback: @Composa
+                 try {
+                     container.removeAllViews()
+                     val rv = resolveRemoteViews(container.context, sbn)
+-                    val inflated = rv?.apply(container.context, container)
++                    val inflated = rv?.apply(container.context, container, interactionHandler)
+                     if (inflated != null) {
+                         container.addView(
+                             inflated,
+diff --git a/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedOngoingContent.kt b/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedOngoingContent.kt
+index 645a4d484d86..771ad735a6f6 100644
+--- a/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedOngoingContent.kt
++++ b/packages/SystemUI/src/com/android/systemui/axdynamicbar/ui/compose/ExpandedOngoingContent.kt
+@@ -1,6 +1,7 @@
+ package com.android.systemui.axdynamicbar.ui.compose
+ 
+ import android.app.Notification
++import android.app.PendingIntent
+ import android.content.Context
+ import android.service.notification.StatusBarNotification
+ import android.view.View
+@@ -67,7 +68,11 @@ private fun resolveRemoteViews(ctx: Context, notification: Notification): Remote
+     return null
+ }
+ 
+-private fun applyOrReapplyRemoteViews(frame: FrameLayout, notification: Notification): Boolean {
++private fun applyOrReapplyRemoteViews(
++    frame: FrameLayout,
++    notification: Notification,
++    interactionHandler: RemoteViews.InteractionHandler,
++): Boolean {
+     val rv =
+         try {
+             resolveRemoteViews(frame.context, notification)
+@@ -77,7 +82,7 @@ private fun applyOrReapplyRemoteViews(frame: FrameLayout, notification: Notifica
+     val existing = if (frame.childCount > 0) frame.getChildAt(0) else null
+     if (existing != null) {
+         try {
+-            rv.reapply(frame.context, existing)
++            rv.reapply(frame.context, existing, interactionHandler)
+             prepareForIsland(existing)
+             return true
+         } catch (_: Exception) {
+@@ -85,7 +90,7 @@ private fun applyOrReapplyRemoteViews(frame: FrameLayout, notification: Notifica
+         }
+     }
+     return try {
+-        val inflated = rv.apply(frame.context, frame)
++        val inflated = rv.apply(frame.context, frame, interactionHandler)
+         prepareForIsland(inflated)
+         frame.addView(
+             inflated,
+@@ -101,12 +106,29 @@ private fun applyOrReapplyRemoteViews(frame: FrameLayout, notification: Notifica
+ }
+ 
+ @Composable
+-private fun SbnContentView(sbn: StatusBarNotification, fallback: @Composable () -> Unit) {
++private fun SbnContentView(
++    sbn: StatusBarNotification,
++    interactor: IslandActions,
++    fallback: @Composable () -> Unit,
++) {
+     var failed by remember(sbn.key) { mutableStateOf(false) }
+     if (failed) {
+         fallback()
+         return
+     }
++    val interactionHandler = remember(sbn.key, interactor) {
++        RemoteViews.InteractionHandler { view, pendingIntent, response ->
++            val launched = RemoteViews.startPendingIntent(
++                view,
++                pendingIntent,
++                response.getLaunchOptions(view),
++            )
++            if (launched) {
++                interactor.collapseIsland()
++            }
++            launched
++        }
++    }
+     AndroidView(
+         factory = { ctx ->
+             FrameLayout(ctx).apply {
+@@ -115,7 +137,9 @@ private fun SbnContentView(sbn: StatusBarNotification, fallback: @Composable ()
+         },
+         update = { frame ->
+             val notification = sbn.notification
+-            if (notification == null || !applyOrReapplyRemoteViews(frame, notification)) {
++            if (notification == null ||
++                !applyOrReapplyRemoteViews(frame, notification, interactionHandler)
++            ) {
+                 failed = true
+             }
+         },
+@@ -157,7 +181,7 @@ internal fun PromotedOngoingExpanded(
+     interactor: IslandActions,
+ ) {
+     val sbn = event.sbn
+-    SbnContentView(sbn, fallback = { PromotedOngoingFallback(event, interactor) })
++    SbnContentView(sbn, interactor = interactor, fallback = { PromotedOngoingFallback(event, interactor) })
+ }
+ 
+ @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+diff --git a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationListener.java b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationListener.java
+index 354b47bbf5a5..a98b50771712 100644
+--- a/packages/SystemUI/src/com/android/systemui/statusbar/NotificationListener.java
++++ b/packages/SystemUI/src/com/android/systemui/statusbar/NotificationListener.java
+@@ -159,6 +159,7 @@ public class NotificationListener extends NotificationListenerWithPlugins implem
+                 for (NotificationHandler handler : mNotificationHandlers) {
+                     handler.onNotificationRemoved(sbn, rankingMap, reason);
+                 }
++                ScrimUtils.get().onNotificationRemoved(sbn);
+             });
+         }
+     }
+-- 
+2.56.1
+

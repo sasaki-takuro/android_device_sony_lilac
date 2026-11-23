@@ -103,7 +103,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
 
-`device/sony/lilac/patches/` 配下に格納されている全 20 個のパッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている全 21 個のパッチを適用します。
 
 ```bash
 # bootable/recovery
@@ -162,6 +162,7 @@ m bacon
   - `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   - ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
   - SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
+  - SystemUI の AxDynamicBar における通知 RemoteViews アクション実行および通知削除イベント連携の修正。
 - **`frameworks_opt_telephony`**:
   - シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   - レガシー HAL（HAL 1.0 / 1.4+）との互換性維持のための `RadioState` マッピング修正。
