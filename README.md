@@ -142,6 +142,8 @@ m bacon
   * `debug.hwui.wait_for_gpu_completion` プロパティの読み込みをサポート（描画完了同期待ちによる競合回避）。
   * ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
   * SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
+  * `SettingsProvider` におけるデフォルト Animator アニメーションスケールを 0% に設定。
+  * レガシーカーネルで `memfd` シーリング失敗時に `ashmem` へフォールバックする `Bitmap` 修正。
 * **`frameworks_opt_telephony`**:
   * シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   * レガシー HAL（HAL 1.0 / 1.4+）との互換性維持のための `RadioState` マッピング修正。
