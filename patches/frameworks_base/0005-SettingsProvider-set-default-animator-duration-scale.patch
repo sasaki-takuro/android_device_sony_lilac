@@ -1,0 +1,39 @@
+From a7af781496e20b38e7b41d614411950f735a0207 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Wed, 25 Nov 2026 08:40:03 +0900
+Subject: [PATCH] SettingsProvider: set default animator duration scale to 0%
+
+Change-Id: I0edb8548c1942a11bd8e037eef8b214f023c3af6
+---
+ packages/SettingsProvider/res/values/defaults.xml               | 1 +
+ .../src/com/android/providers/settings/DatabaseHelper.java      | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/packages/SettingsProvider/res/values/defaults.xml b/packages/SettingsProvider/res/values/defaults.xml
+index c6dd6665cdc3..882c9b24ba97 100644
+--- a/packages/SettingsProvider/res/values/defaults.xml
++++ b/packages/SettingsProvider/res/values/defaults.xml
+@@ -36,6 +36,7 @@
+     <bool name="def_screen_brightness_automatic_mode">false</bool>
+     <fraction name="def_window_animation_scale">0%</fraction>
+     <fraction name="def_window_transition_scale">0%</fraction>
++    <fraction name="def_animator_duration_scale">0%</fraction>
+     <bool name="def_haptic_feedback">true</bool>
+ 
+     <bool name="def_bluetooth_on">true</bool>
+diff --git a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+index a3eab5da1100..a0c837136cb6 100644
+--- a/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
++++ b/packages/SettingsProvider/src/com/android/providers/settings/DatabaseHelper.java
+@@ -2165,6 +2165,8 @@ class DatabaseHelper extends SQLiteOpenHelper {
+                 R.fraction.def_window_animation_scale, 1);
+         loadFractionSetting(stmt, Settings.System.TRANSITION_ANIMATION_SCALE,
+                 R.fraction.def_window_transition_scale, 1);
++        loadFractionSetting(stmt, Settings.System.ANIMATOR_DURATION_SCALE,
++                R.fraction.def_animator_duration_scale, 1);
+     }
+ 
+     private void loadDefaultHapticSettings(SQLiteStatement stmt) {
+-- 
+2.56.1
+

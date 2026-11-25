@@ -25,3 +25,16 @@ ro.semc.product.device=G84
 
 # Tell SurfaceFlinger not to rely on ConfigStore
 android.hardware.configstore.1.0-service=0
+
+# Android 16 Kernel 4.4 Compatibility
+ro.bpf.kver_override=4.9.0
+ro.incremental.enable=true
+
+# Disable UBWC on framebuffer and Android 16 RenderEngine features causing Adreno 540 faults
+debug.gralloc.enable_fb_ubwc=0
+debug.hwui.renderer=skiagl
+debug.renderengine.backend=skiagl
+debug.renderengine.threaded=false
+debug.renderengine.graphite=false
+persist.sys.sf.disable_blurs=1
+debug.hwui.use_gpu_pixel_buffers=false
