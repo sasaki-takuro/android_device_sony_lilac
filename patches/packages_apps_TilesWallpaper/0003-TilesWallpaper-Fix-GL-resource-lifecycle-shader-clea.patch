@@ -1,0 +1,344 @@
+From f8e6c06025d15d24944d2a03dca8c8ea7a880d91 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Thu, 26 Nov 2026 10:43:16 +0900
+Subject: [PATCH 3/3] TilesWallpaper: Fix GL resource lifecycle, shader
+ cleanup, and surface teardown race
+
+Change-Id: I748940fbd6981ba91dd052215c2c31da80ce6df0
+---
+ .../livewallpaper/GLESWallpaperService.java   |  12 +-
+ .../OpenGLESWallpaperService.java             |  24 ++--
+ .../opengles/GLESPlaneAnimatedRenderer.java   | 110 +++++++++++-------
+ app/src/main/java/pit/opengles/Shader.java    |  22 +++-
+ 4 files changed, 113 insertions(+), 55 deletions(-)
+
+diff --git a/app/src/main/java/pit/livewallpaper/GLESWallpaperService.java b/app/src/main/java/pit/livewallpaper/GLESWallpaperService.java
+index a46f76a..605a84a 100644
+--- a/app/src/main/java/pit/livewallpaper/GLESWallpaperService.java
++++ b/app/src/main/java/pit/livewallpaper/GLESWallpaperService.java
+@@ -258,10 +258,20 @@ public abstract class GLESWallpaperService extends WallpaperService
+         @Override
+         public void onSurfaceDestroyed(SurfaceHolder holder)
+         {
+-            super.onSurfaceDestroyed(holder);
+             if (_mSurfaceView != null) {
++                if (_rendererHasBeenSet) {
++                    _mSurfaceView.onPause();
++                }
+                 _mSurfaceView.surfaceDestroyed(holder);
+             }
++            super.onSurfaceDestroyed(holder);
++        }
++
++        protected void queueEvent(Runnable r)
++        {
++            if (_mSurfaceView != null && _rendererHasBeenSet) {
++                _mSurfaceView.queueEvent(r);
++            }
+         }
+ 
+         @Override
+diff --git a/app/src/main/java/pit/livewallpaper/OpenGLESWallpaperService.java b/app/src/main/java/pit/livewallpaper/OpenGLESWallpaperService.java
+index 850b907..71dfee0 100644
+--- a/app/src/main/java/pit/livewallpaper/OpenGLESWallpaperService.java
++++ b/app/src/main/java/pit/livewallpaper/OpenGLESWallpaperService.java
+@@ -63,16 +63,24 @@ public abstract class OpenGLESWallpaperService extends GLESWallpaperService
+         @Override
+         public void onSharedPreferenceChanged(SharedPreferences prefs, String key)
+         {
+-            if(isValidGLES())
++            if(isValidGLES() && _mRenderer != null)
+             {
+-                String color = prefs.getString("color", "COLORFUL");
+-                ((GLESPlaneAnimatedRenderer) _mRenderer).switchColors(color);
+-                Float animSpeed = prefs.getInt("animSpeed1", 20) * 0.01f;
+-                ((GLESPlaneAnimatedRenderer) _mRenderer).changeAnimationSpeed(animSpeed);
+-                String motion = prefs.getString("motion", "random");
+-                ((GLESPlaneAnimatedRenderer) _mRenderer).changeMotion(motion);
+-                boolean sensors = prefs.getBoolean("sensors", true);
++                final String color = prefs.getString("color", "COLORFUL");
++                final float animSpeed = prefs.getInt("animSpeed1", 20) * 0.01f;
++                final String motion = prefs.getString("motion", "random");
++                final boolean sensors = prefs.getBoolean("sensors", true);
+                 this.activateSensors(sensors);
++                queueEvent(new Runnable() {
++                    @Override
++                    public void run() {
++                        if (_mRenderer instanceof GLESPlaneAnimatedRenderer) {
++                            GLESPlaneAnimatedRenderer r = (GLESPlaneAnimatedRenderer) _mRenderer;
++                            r.switchColors(color);
++                            r.changeAnimationSpeed(animSpeed);
++                            r.changeMotion(motion);
++                        }
++                    }
++                });
+             }
+         }
+     }
+diff --git a/app/src/main/java/pit/opengles/GLESPlaneAnimatedRenderer.java b/app/src/main/java/pit/opengles/GLESPlaneAnimatedRenderer.java
+index ed4d215..e3eb4b5 100644
+--- a/app/src/main/java/pit/opengles/GLESPlaneAnimatedRenderer.java
++++ b/app/src/main/java/pit/opengles/GLESPlaneAnimatedRenderer.java
+@@ -27,7 +27,7 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+     private Shader _mShader;
+     private FloatBuffer _mVertexBuffer;
+     private FloatBuffer _mTexCoordBuffer;
+-    private float _mAnimationSpeed = 0.5f;
++    private volatile float _mAnimationSpeed = 0.5f;
+     private Camera _mCamera;
+     private Vector3f _mLightPosition = new Vector3f(0, 0, -0.99f);
+     private Vector3f _mPlanePosition = new Vector3f(0, 0, 0);
+@@ -36,9 +36,9 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+     private final int sizeOfFloat = 4;
+     private int _mTexture = 0;
+     private int _mMask = 0;
+-    private int _mBump = 0;
+-    private boolean straight = true, eight = false, random = false;
++    private volatile int _mMotionMode = 0; // 0: straight, 1: 8, 2: random
+     private Vector2f _mOffset = new Vector2f(0, 0);
++    private volatile boolean _mInitialized = false;
+ 
+     private Plane plane;
+     private int[] _mVBO = new int[2];
+@@ -48,19 +48,50 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+         _mContext = context;
+     }
+ 
++    private void releaseGLResources()
++    {
++        if (_mVBO[0] != 0 || _mVBO[1] != 0) {
++            GLES20.glDeleteBuffers(2, _mVBO, 0);
++            _mVBO[0] = 0;
++            _mVBO[1] = 0;
++        }
++        int[] texIds = new int[2];
++        int count = 0;
++        if (_mTexture != 0) {
++            texIds[count++] = _mTexture;
++            _mTexture = 0;
++        }
++        if (_mMask != 0) {
++            texIds[count++] = _mMask;
++            _mMask = 0;
++        }
++        if (count > 0) {
++            GLES20.glDeleteTextures(count, texIds, 0);
++        }
++        if (_mShader != null) {
++            _mShader.release();
++            _mShader = null;
++        }
++    }
++
+     @Override
+     public void onSurfaceCreated(GL10 notUsed, EGLConfig config)
+     {
++        _mInitialized = false;
++        releaseGLResources();
++
+         _mShader = new Shader(_mContext);
+         _mCamera = new Camera();
+         plane = new Plane();
+ 
+-
+         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+         GLES20.glEnable(GLES20.GL_CULL_FACE);
+         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+ 
+         createVisuals();
++        _mInitialized = (_mShader != null && _mShader.getMainProgram() != 0
++                && _mVBO[0] != 0 && _mVBO[1] != 0
++                && _mTexture != 0 && _mMask != 0);
+     }
+ 
+     private void createVisuals()
+@@ -84,30 +115,35 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+ 
+         _mMask = ResourceLoader.loadTexture(_mContext, R.drawable.mask);
+         _mTexture = ResourceLoader.loadTexture(_mContext, R.drawable.aicp);
+-        _mBump = ResourceLoader.loadTexture(_mContext, R.drawable.bump);
+-
+     }
+ 
+     @Override
+     public void onSurfaceChanged(GL10 notUsed, int width, int height)
+     {
++        if (width <= 0 || height <= 0) return;
+         GLES20.glViewport(0, 0, width, height);
+-        _mCamera.onSurfaceChanged(width, height);
++        if (_mCamera != null) {
++            _mCamera.onSurfaceChanged(width, height);
++        }
+     }
+ 
+     @Override
+     public void onDrawFrame(GL10 notUsed)
+     {
+-        if (_mTexture == 0 || _mMask == 0) return;
++        if (!_mInitialized || _mTexture == 0 || _mMask == 0 || _mShader == null) return;
++        int program = _mShader.getMainProgram();
++        if (program == 0 || _mVBO[0] == 0 || _mVBO[1] == 0) return;
++
+         long time = SystemClock.uptimeMillis();
+         float currentTime = time/1000.0f;
+         GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT | GLES20.GL_COLOR_BUFFER_BIT);
+ 
+-        if(straight) moveStraight(currentTime);
+-        else if(eight) moveEight(currentTime);
+-        else if(random) moveRandom();
++        int mode = _mMotionMode;
++        if (mode == 0) moveStraight(currentTime);
++        else if (mode == 1) moveEight(currentTime);
++        else moveRandom();
+ 
+-        DrawModel();
++        DrawModel(program);
+     }
+ 
+     private void moveStraight(float t)
+@@ -129,11 +165,12 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+ 
+     private void moveRandom()
+     {
+-        if(_mLightPosition.y < y) _mLightPosition.y += 0.01f * _mAnimationSpeed;
+-        if(_mLightPosition.y > y) _mLightPosition.y -= 0.01f * _mAnimationSpeed;
+-        if(_mLightPosition.x < x) _mLightPosition.x += 0.01f * _mAnimationSpeed;
+-        if(_mLightPosition.x > x) _mLightPosition.x -= 0.01f * _mAnimationSpeed;
+-        if(Math.abs(_mLightPosition.y - y) < 0.01f * _mAnimationSpeed && Math.abs(_mLightPosition.x - x) < 0.01f* _mAnimationSpeed)
++        float speed = _mAnimationSpeed;
++        if(_mLightPosition.y < y) _mLightPosition.y += 0.01f * speed;
++        if(_mLightPosition.y > y) _mLightPosition.y -= 0.01f * speed;
++        if(_mLightPosition.x < x) _mLightPosition.x += 0.01f * speed;
++        if(_mLightPosition.x > x) _mLightPosition.x -= 0.01f * speed;
++        if(Math.abs(_mLightPosition.y - y) < 0.01f * speed && Math.abs(_mLightPosition.x - x) < 0.01f * speed)
+         {
+             x  = (float)Math.random() - 0.5f;
+             y = (float)Math.random() *2 - 1;
+@@ -141,34 +178,29 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+         _mLightTransform.setPosition(_mLightPosition.x, _mLightPosition.y, _mLightPosition.z);
+     }
+ 
+-    private void DrawModel()
++    private void DrawModel(int program)
+     {
+-        GLES20.glUseProgram(_mShader.getMainProgram());
++        GLES20.glUseProgram(program);
+ 
+         float[] MVPMatrix = new float[16];
+ 
+         android.opengl.Matrix.multiplyMM(MVPMatrix, 0, _mCamera.getProjectionMatrix(), 0, _mCamera.getViewMatrix(), 0);
+ 
+-        GLES20.glUniformMatrix4fv(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "MVMatrix"), 1, false, MVPMatrix, 0);
+-
+-        GLES20.glUniformMatrix4fv(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "modelMatrix"), 1, false, _mPlaneTransform.getModelMatrix(), 0);
++        GLES20.glUniformMatrix4fv(GLES20.glGetUniformLocation(program, "MVMatrix"), 1, false, MVPMatrix, 0);
+ 
+-        GLES20.glUniform3f(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "lightPosition"), _mLightPosition.x, _mLightPosition.y, _mLightPosition.z);
++        GLES20.glUniformMatrix4fv(GLES20.glGetUniformLocation(program, "modelMatrix"), 1, false, _mPlaneTransform.getModelMatrix(), 0);
+ 
+-        GLES20.glUniform2f(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "offset"), _mOffset.x, _mOffset.y);
++        GLES20.glUniform3f(GLES20.glGetUniformLocation(program, "lightPosition"), _mLightPosition.x, _mLightPosition.y, _mLightPosition.z);
+ 
++        GLES20.glUniform2f(GLES20.glGetUniformLocation(program, "offset"), _mOffset.x, _mOffset.y);
+ 
+         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, _mMask);
+-        GLES20.glUniform1i(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "mask"), 1);
++        GLES20.glUniform1i(GLES20.glGetUniformLocation(program, "mask"), 1);
+ 
+         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, _mTexture);
+-        GLES20.glUniform1i(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "texture"), 0);
+-
+-        // GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+-        // GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, _mBump);
+-        // GLES20.glUniform1i(GLES20.glGetUniformLocation(_mShader.getMainProgram(), "bumptexture"), 2);
++        GLES20.glUniform1i(GLES20.glGetUniformLocation(program, "texture"), 0);
+ 
+         GLES20.glEnableVertexAttribArray(0);
+         GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, _mVBO[0]);
+@@ -249,23 +281,17 @@ public class GLESPlaneAnimatedRenderer implements GLSurfaceView.Renderer {
+ 
+     public void changeMotion(String motion)
+     {
+-        if(motion.matches("straight"))
++        if ("straight".equals(motion))
+         {
+-            straight = true;
+-            eight = false;
+-            random = false;
++            _mMotionMode = 0;
+         }
+-        else if(motion.matches("8"))
++        else if ("8".equals(motion))
+         {
+-            straight = false;
+-            eight = true;
+-            random = false;
++            _mMotionMode = 1;
+         }
+-        else if(motion.matches("random"))
++        else if ("random".equals(motion))
+         {
+-            straight = false;
+-            eight = false;
+-            random = true;
++            _mMotionMode = 2;
+         }
+     }
+ }
+diff --git a/app/src/main/java/pit/opengles/Shader.java b/app/src/main/java/pit/opengles/Shader.java
+index b6c8368..19a61f4 100644
+--- a/app/src/main/java/pit/opengles/Shader.java
++++ b/app/src/main/java/pit/opengles/Shader.java
+@@ -14,7 +14,7 @@ public class Shader
+     private Context mContext;
+     private int mProgram;
+ 
+-	public Shader(Context context)
++    public Shader(Context context)
+     {
+         mContext = context;
+         String vertexShader = ResourceLoader.readShader(mContext, R.raw.mainvertexshader);
+@@ -29,9 +29,7 @@ public class Shader
+ 
+         int program = GLES20.glCreateProgram();
+ 
+-
+-        if (program != 0)
+-
++        if (program != 0) {
+             GLES20.glAttachShader(program, vs);
+             GLES20.glAttachShader(program, fs);
+ 
+@@ -48,6 +46,15 @@ public class Shader
+                 GLES20.glDeleteProgram(program);
+                 program = 0;
+             }
++        }
++
++        if (vs != 0) {
++            GLES20.glDeleteShader(vs);
++        }
++        if (fs != 0) {
++            GLES20.glDeleteShader(fs);
++        }
++
+         if (program == 0)
+         {
+             throw new RuntimeException("Error creating program");
+@@ -80,4 +87,11 @@ public class Shader
+     }
+ 
+     public int getMainProgram(){ return mProgram;}
++
++    public void release() {
++        if (mProgram != 0) {
++            GLES20.glDeleteProgram(mProgram);
++            mProgram = 0;
++        }
++    }
+ }
+-- 
+2.56.1
+

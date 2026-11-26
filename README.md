@@ -101,7 +101,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 ```
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
-`device/sony/lilac/patches/` 配下に格納されている 11 個の必須パッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている 12 個の必須パッチを適用します。
 ```bash
 # build/make
 git -C build/make am ${PWD}/device/sony/lilac/patches/build_make/*.patch
@@ -151,6 +151,7 @@ mka bacon
 
 - **`packages_apps_TilesWallpaper`**:
   * Adreno 540 環境における GPU フォールト・VBO 処理・シェーダー描画の修正、および不要な明示的 `glFlush` 呼び出しの除去による描画パイプラインの安定化。
+  * GL リソース（VBO・テクスチャ・シェーダ）の再生成時解放、スレッド間設定変更の `queueEvent` 同期、およびサーフェス破棄時の描画停止によるレースコンディション解消。
 
 ---
 

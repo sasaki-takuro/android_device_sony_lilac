@@ -1,7 +1,7 @@
 From 6659f8f09142ead26b0ab4f7301716ef96129d30 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Sat, 17 Oct 2026 22:12:16 +0900
-Subject: [PATCH 2/2] TilesWallpaper: Remove explicit glFlush from DrawModel
+Subject: [PATCH 2/3] TilesWallpaper: Remove explicit glFlush from DrawModel
 
 Change-Id: I185567938b6b7f46c2177d2e280b40e43e3a640c
 ---
@@ -21,5 +21,5 @@ index 321ffc0..ed4d215 100644
  
      public void parallaxMove(float x, float y, boolean reversed, boolean touch)
 -- 
-2.56.0
+2.56.1
 
