@@ -103,7 +103,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
 
-`device/sony/lilac/patches/` 配下に格納されている全 21 個のパッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている全 22 個のパッチを適用します。
 
 ```bash
 # bootable/recovery
@@ -180,6 +180,7 @@ m bacon
   - 新しい Linux ディストリビューション（Arch Linux 等）環境でホスト側の `date` / `tar` を使用するため prebuilt シンボリックリンクを削除。
 - **`vendor_lineage`**:
   - `userdebug` ビルドでのデバッグ有効化および `adb_root` 許可設定を維持する修正。
+  - 非標準の `Pikachu.ogg` / `NuclearLaunch.ogg` 音声ファイルを削除し、デフォルト通知音を標準の `Argon.ogg` へ戻す修正。
 
 ---
 

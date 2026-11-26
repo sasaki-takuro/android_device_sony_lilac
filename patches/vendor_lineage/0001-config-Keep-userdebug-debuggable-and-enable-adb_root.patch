@@ -1,7 +1,7 @@
 From 961e753bb2aa3ee08dd4257152155c7ad8fbe9b5 Mon Sep 17 00:00:00 2001
 From: Takuro <ssk.ktai@gmail.com>
 Date: Thu, 19 Nov 2026 22:27:32 +0900
-Subject: [PATCH] config: Keep userdebug debuggable and enable adb_root
+Subject: [PATCH 1/2] config: Keep userdebug debuggable and enable adb_root
 
 ---
  config/common.mk | 4 ++--
