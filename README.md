@@ -103,7 +103,7 @@ repo sync -c -j$(nproc --all) --force-sync --no-clone-bundle --no-tags
 
 ### 4. ビルドシステムおよびフレームワークへのパッチ適用
 
-`device/sony/lilac/patches/` 配下に格納されている全 17 個のパッチを適用します。
+`device/sony/lilac/patches/` 配下に格納されている全 18 個のパッチを適用します。
 
 ```bash
 # build/make
@@ -157,6 +157,7 @@ m bacon
   - ウィンドウ、トランジション、および Animator アニメーションスケールの初期値を 0 倍（無効化）に設定。
   - SystemUI における音量ダイアログ（ボリュームオーバーレイ）のセンタリング表示対応。
   - `SettingsProvider` における `def_animator_duration_scale` の初期値を 0% に設定。
+  - レガシーカーネルで `memfd` シーリング失敗時に `ashmem` へフォールバックする `Bitmap` 修正。
 - **`frameworks_opt_telephony`**:
   - シングル SIM 端末における不要な `setPreferredDataModem` 呼び出しをスキップ。
   - レガシー HAL（HAL 1.0 / 1.4+）との互換性維持のための `RadioState` マッピング修正。
