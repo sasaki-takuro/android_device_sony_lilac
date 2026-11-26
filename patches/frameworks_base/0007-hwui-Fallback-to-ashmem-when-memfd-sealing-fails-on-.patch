@@ -1,0 +1,62 @@
+From b254ea6999b55b84255b3ba5c6cd666a5f5a2343 Mon Sep 17 00:00:00 2001
+From: Takuro <ssk.ktai@gmail.com>
+Date: Wed, 25 Nov 2026 11:30:52 +0900
+Subject: [PATCH] hwui: Fallback to ashmem when memfd sealing fails on legacy
+ kernels
+
+Change-Id: Ia386506fbe891e000235cf7ec394a7ce91bd0933
+---
+ libs/hwui/jni/Bitmap.cpp | 34 ++++++++++++----------------------
+ 1 file changed, 12 insertions(+), 22 deletions(-)
+
+diff --git a/libs/hwui/jni/Bitmap.cpp b/libs/hwui/jni/Bitmap.cpp
+index 1d4576156d51..0f69319a6f00 100644
+--- a/libs/hwui/jni/Bitmap.cpp
++++ b/libs/hwui/jni/Bitmap.cpp
+@@ -784,31 +784,21 @@ static binder_status_t writeBlob(AParcel* parcel, uint64_t bitmapId, const SkBit
+                                             bitmap.width(), bitmap.height(), size);
+         base::unique_fd fd;
+ 
++        bool memfdOk = false;
+         if (com::android::graphics::hwui::flags::bitmap_use_memfd()) {
+             fd.reset(syscall(__NR_memfd_create, ashmemId.c_str(), MFD_CLOEXEC | MFD_ALLOW_SEALING));
+-            if (fd.get() < 0) {
+-                return STATUS_NO_MEMORY;
+-            }
+-
+-            ssize_t written = write(fd.get(), data, size);
+-            if (written != size) {
+-                return STATUS_NO_MEMORY;
+-            }
+-
+-            if (fcntl(fd, F_ADD_SEALS,
+-                      // Disallow growing / shrinking.
+-                      F_SEAL_GROW | F_SEAL_SHRINK
+-                      // If immutable, disallow writing.
+-                      // Use F_SEAL_FUTURE_WRITE instead of F_SEAL_WRITE to work around a bug in
+-                      // pre-6.7 kernels.
+-                      // There are no writable mappings made prior to this, so both seals are
+-                      // functionally equivalent.
+-                      // See: b/409846908#comment39
+-                      | (immutable ? F_SEAL_FUTURE_WRITE : 0))) {
+-                return STATUS_UNKNOWN_ERROR;
++            if (fd.get() >= 0) {
++                ssize_t written = write(fd.get(), data, size);
++                if (written == size &&
++                    fcntl(fd, F_ADD_SEALS,
++                          F_SEAL_GROW | F_SEAL_SHRINK | (immutable ? F_SEAL_FUTURE_WRITE : 0)) == 0) {
++                    memfdOk = true;
++                } else {
++                    fd.reset();
++                }
+             }
+-
+-        } else {
++        }
++        if (!memfdOk) {
+             fd.reset(ashmem_create_region(ashmemId.c_str(), size));
+             if (fd.get() < 0) {
+                 return STATUS_NO_MEMORY;
+-- 
+2.56.1
+
